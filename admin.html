@@ -334,6 +334,8 @@ function renderList(){
           <h3>${esc(p.name)} ${p.verified?'<span style="font-size:.62rem;background:rgba(47,102,71,.1);color:var(--green);border:1px solid var(--green);border-radius:999px;padding:1px 8px;vertical-align:middle">⭐ موثّق</span>':''} <span class="meta">— ${esc(p.service)} · ${esc(p.city)}</span></h3>
           <div class="meta">${esc(p.regions)} · يبدأ من ${Number(p.price).toLocaleString('ar-SA')} ريال · ★ ${p.rating||0} (${p.reviews||0})${p.views?` · 👁 ${p.views} مشاهدة`:''}</div>
           ${p.notes?`<div class="meta" style="color:var(--gold)">📝 ${esc(p.notes)}</div>`:''}
+          ${'code' in p?(p.code?`<div class="meta">🔑 رمز الدخول: <b dir="ltr">${esc(p.code)}</b></div>`:'<div class="meta" style="color:var(--sadu-red)">🔑 ما عنده رمز دخول — ولّد له واحد</div>'):''}
+          ${p.certs?`<div class="meta" style="margin-top:6px">📜 الشهادات: ${String(p.certs).split('|').map(u=>u.trim()).filter(Boolean).map(u=>`<a href="${esc(u)}" target="_blank" rel="noopener" style="color:var(--gold)">عرض</a>`).join(' · ')} <span style="color:var(--green)">← راجعها وامنحه التوثيق ⭐</span></div>`:''}
         </div>
         <span class="status ${stClass}">${esc(p.status)}</span>
       </div>
@@ -345,6 +347,7 @@ function renderList(){
         ${p.status==='قيد المراجعة'?`<a class="btn btn-sm" style="background:#25D366;color:#fff;text-decoration:none" href="https://wa.me/966${String(p.phone).replace(/^0/,'')}?text=${encodeURIComponent('السلام عليكم '+p.name+'، وصلنا تسجيلكم في منصة دبّره 🎉 لإكمال تفعيل ملفكم فضلاً حوّلوا رسوم التسجيل (10 ريال فقط) وأرسلوا لنا إيصال التحويل، وبيظهر ملفكم للعملاء خلال 24 ساعة بإذن الله.')}" target="_blank" rel="noopener">💳 طلب الدفع</a>`:''}
         ${v3()?`<button class="btn btn-outline btn-sm" onclick="toggleVerified('${p.id}',${p.verified?'false':'true'})">${p.verified?'⭐ إلغاء التوثيق':'⭐ توثيق'}</button>`:''}
         <button class="btn btn-outline btn-sm" onclick="copyProviderLink('${p.id}')">🔗 نسخ رابط الملف</button>
+        ${'code' in p?(p.code?`<a class="btn btn-sm" style="background:#25D366;color:#fff;text-decoration:none" href="https://wa.me/966${String(p.phone).replace(/^0/,'')}?text=${encodeURIComponent('أهلاً '+p.name+' 🌟 هذي بيانات دخولك لبوابة مزودي دبّره:\n\n🔗 الرابط: https://abdullah5544.github.io/dabbirha/portal.html\n📱 رقم الجوال: '+p.phone+'\n🔑 رمز الدخول: '+p.code+'\n\nمن البوابة تتحكم بتقويمك وصورك وبياناتك بنفسك، وترفع شهادة العمل الحر للحصول على شارة موثّق ⭐')}" target="_blank" rel="noopener">🔑 إرسال بيانات الدخول</a>`:`<button class="btn btn-outline btn-sm" onclick="genCode('${p.id}')">🔑 توليد رمز دخول</button>`):''}
         ${p.status!=='موقوف'?`<button class="btn btn-outline btn-sm" onclick="setStatus('${p.id}','موقوف')">⏸ إيقاف</button>`:''}
         ${p.status==='موقوف'?`<button class="btn btn-green btn-sm" onclick="setStatus('${p.id}','معتمد')">✔ إعادة تفعيل</button>`:''}
         <button class="btn btn-gold btn-sm" onclick="openEdit('${p.id}')">✏️ تعديل</button>
@@ -364,6 +367,13 @@ async function setStatus(id,status){
     updateStats();renderList();
     toast(status==='معتمد'?'✅ تم الاعتماد — صار ظاهر بالموقع':'تم التحديث');
   }else toast('❌ '+(out.error||'فشل'));
+}
+
+async function genCode(id){
+  toast('⏳ جاري توليد الرمز...');
+  const out=await api('admin:genCode',{id:id});
+  if(out.ok){toast('🔑 الرمز الجديد: '+out.code);loadAll();}
+  else toast('❌ '+(out.error||'تأكد أن الباك اند v4 منشور'));
 }
 
 async function toggleVerified(id,val){
