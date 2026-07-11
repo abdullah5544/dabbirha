@@ -853,6 +853,13 @@ async function submitRegister(){
   const btn=document.getElementById('regSubmitBtn');
   btn.disabled=true;btn.textContent='⏳ جاري الإرسال...';
   try{
+    // محاولة التحقق الآلي أولاً
+    const otpRes=await fetch(CONFIG.API_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},
+      body:JSON.stringify({action:'otp:send',phone:data.phone})});
+    const otpOut=await otpRes.json();
+    if(otpOut.ok){showOtpScreen(data);return;}
+    if(!otpOut.notConfigured){btn.disabled=false;btn.textContent='إرسال الطلب';alert(otpOut.error);return;}
+    // التحقق الآلي غير مفعل → المسار العكسي
     const res=await fetch(CONFIG.API_URL,{
       method:'POST',
       headers:{'Content-Type':'text/plain;charset=utf-8'},
@@ -873,6 +880,70 @@ async function submitRegister(){
   }catch(err){
     btn.disabled=false;btn.textContent='إرسال الطلب';
     alert('صار خطأ بالإرسال: '+err.message+'\nحاول مرة ثانية.');
+  }
+}
+
+/* ====== شاشة رمز التحقق الآلي ====== */
+let pendingReg=null;
+function showOtpScreen(data){
+  pendingReg=data;
+  regOriginal=regOriginal||document.getElementById('regBody').innerHTML;
+  document.getElementById('regBody').innerHTML=`
+    <div class="success-msg">
+      <div class="icon">📲</div>
+      <h3>أدخل رمز التحقق</h3>
+      <p>أرسلنا رمز مكون من ٤ أرقام على واتساب الرقم <b dir="ltr">${esc(data.phone)}</b></p>
+      <input id="otpInput" dir="ltr" inputmode="numeric" maxlength="4" placeholder="• • • •"
+        style="width:180px;text-align:center;font-size:1.6rem;letter-spacing:10px;padding:10px;border:2px solid var(--gold);border-radius:12px;margin:14px 0;font-family:inherit"
+        onkeydown="if(event.key==='Enter')verifyOtp()">
+      <div id="otpErr" style="color:var(--sadu-red);font-size:.8rem;min-height:1.4em"></div>
+      <button class="btn btn-gold" id="otpBtn" style="min-width:200px" onclick="verifyOtp()">تحقق وأكمل التسجيل</button>
+      <p style="font-size:.78rem;margin-top:14px">ما وصلك الرمز؟ <a href="#" id="resendLink" onclick="resendOtp();return false" style="color:var(--gold)">إعادة الإرسال</a> <span id="resendTimer"></span></p>
+    </div>`;
+  startResendTimer();
+  setTimeout(()=>{const i=document.getElementById('otpInput');if(i)i.focus();},100);
+}
+let resendCd=null;
+function startResendTimer(){
+  let s=60;
+  const link=document.getElementById('resendLink'),tm=document.getElementById('resendTimer');
+  link.style.pointerEvents='none';link.style.opacity='.4';
+  clearInterval(resendCd);
+  resendCd=setInterval(()=>{
+    s--;tm.textContent=s>0?'('+s+')':'';
+    if(s<=0){clearInterval(resendCd);link.style.pointerEvents='';link.style.opacity='';}
+  },1000);
+}
+async function resendOtp(){
+  if(!pendingReg)return;
+  const out=await(await fetch(CONFIG.API_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},
+    body:JSON.stringify({action:'otp:send',phone:pendingReg.phone})})).json();
+  document.getElementById('otpErr').textContent=out.ok?'':out.error;
+  if(out.ok){toastMsg('📲 تم إرسال رمز جديد');startResendTimer();}
+}
+async function verifyOtp(){
+  const otp=document.getElementById('otpInput').value.trim();
+  const err=document.getElementById('otpErr');
+  if(!/^\d{4}$/.test(otp)){err.textContent='الرمز ٤ أرقام';return;}
+  const btn=document.getElementById('otpBtn');
+  btn.disabled=true;btn.textContent='⏳ جاري التحقق...';
+  err.textContent='';
+  try{
+    const res=await fetch(CONFIG.API_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},
+      body:JSON.stringify({action:'register',data:pendingReg,photos:selectedPhotos,otp:otp})});
+    const out=await res.json();
+    if(!out.ok)throw new Error(out.error||'فشل التحقق');
+    document.getElementById('regBody').innerHTML=`
+      <div class="success-msg">
+        <div class="icon">🎉</div>
+        <h3>تم التحقق والتسجيل بنجاح!</h3>
+        <p>رقمك متحقق ✅ وطلبك وصلنا يا ${esc(pendingReg.name)}.<br>بنتواصل معك على واتساب برابط دفع رسوم التسجيل (١٠ ريال)، وبعد الاعتماد يظهر ملفك ويوصلك رمز دخولك لبوابة المزودين 🔑</p>
+        <button class="btn btn-gold" style="margin-top:16px" onclick="closeModal('registerModal')">تمام</button>
+      </div>`;
+    pendingReg=null;
+  }catch(e){
+    err.textContent=e.message;
+    btn.disabled=false;btn.textContent='تحقق وأكمل التسجيل';
   }
 }
 
