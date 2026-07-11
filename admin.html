@@ -130,6 +130,7 @@ main{max-width:1100px;margin:0 auto;padding:24px 20px 60px}
       </select>
       <input id="fSearch" placeholder="🔍 بحث بالاسم أو المدينة" oninput="renderList()" style="min-width:200px">
       <div class="spacer"></div>
+      <button class="btn btn-gold btn-sm" onclick="openAdd()">➕ إضافة مزود</button>
     </div>
 
     <div class="plist" id="plist"></div>
@@ -139,7 +140,7 @@ main{max-width:1100px;margin:0 auto;padding:24px 20px 60px}
 <!-- مودال التعديل -->
 <div class="modal-overlay" id="editModal" onclick="if(event.target===this)closeEdit()">
   <div class="modal">
-    <div class="modal-head"><h3 style="font-size:1rem">تعديل بيانات المزود</h3><button class="close-btn" onclick="closeEdit()">✕</button></div>
+    <div class="modal-head"><h3 style="font-size:1rem" id="modalTitle">تعديل بيانات المزود</h3><button class="close-btn" onclick="closeEdit()">✕</button></div>
     <div class="modal-body">
       <div class="fgrid">
         <div><label>الاسم</label><input id="eName"></div>
@@ -158,6 +159,7 @@ main{max-width:1100px;margin:0 auto;padding:24px 20px 60px}
         <div><label>الرابط</label><input id="eLink" dir="ltr"></div>
         <div class="full"><label>التواريخ المتاحة (افصل بـ ،)</label><input id="eDates"></div>
         <div class="full"><label>النبذة</label><textarea id="eBio" rows="3"></textarea></div>
+        <div class="full"><label>روابط الصور (افصل بـ | ) — اختياري</label><input id="ePhotos" dir="ltr" placeholder="https://... | https://..."></div>
         <div><label>التقييم (٠-٥)</label><input id="eRating" type="number" step="0.1" min="0" max="5"></div>
         <div><label>عدد التقييمات</label><input id="eReviews" type="number" min="0"></div>
       </div>
@@ -312,12 +314,28 @@ function openEdit(id){
   document.getElementById('eBio').value=p.bio||'';
   document.getElementById('eRating').value=p.rating||0;
   document.getElementById('eReviews').value=p.reviews||0;
+  document.getElementById('ePhotos').value=p.photos||'';
+  document.getElementById('modalTitle').textContent='تعديل بيانات المزود';
+  document.getElementById('saveBtn').textContent='حفظ التعديلات';
+  addMode=false;
   document.getElementById('editModal').classList.add('open');
 }
-function closeEdit(){document.getElementById('editModal').classList.remove('open');editingId=null;}
+function closeEdit(){document.getElementById('editModal').classList.remove('open');editingId=null;addMode=false;}
+
+let addMode=false;
+function openAdd(){
+  editingId=null;addMode=true;
+  ['eName','eCity','ePrice','eRegions','eOccasions','ePhone','eLink','eDates','eBio','ePhotos'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('eService').value='تصوير';
+  document.getElementById('eRating').value=0;
+  document.getElementById('eReviews').value=0;
+  document.getElementById('modalTitle').textContent='إضافة مزود جديد (يُعتمد مباشرة)';
+  document.getElementById('saveBtn').textContent='إضافة واعتماد';
+  document.getElementById('editModal').classList.add('open');
+}
 
 async function saveEdit(){
-  if(!editingId)return;
+  if(!editingId&&!addMode)return;
   const fields={
     name:document.getElementById('eName').value.trim(),
     service:document.getElementById('eService').value,
@@ -330,9 +348,37 @@ async function saveEdit(){
     dates:document.getElementById('eDates').value.trim(),
     bio:document.getElementById('eBio').value.trim(),
     rating:document.getElementById('eRating').value,
-    reviews:document.getElementById('eReviews').value
+    reviews:document.getElementById('eReviews').value,
+    photos:document.getElementById('ePhotos').value.trim()
   };
   const btn=document.getElementById('saveBtn');
+
+  /* ---- وضع الإضافة: تسجيل ثم اعتماد فوري ---- */
+  if(addMode){
+    if(!fields.name||!fields.city||!fields.price||!fields.phone||!fields.bio){toast('❌ عبّي الاسم والمدينة والسعر والجوال والنبذة');return;}
+    if(!/^05\d{8}$/.test(fields.phone)){toast('❌ الجوال لازم يكون بصيغة 05xxxxxxxx');return;}
+    btn.disabled=true;btn.textContent='⏳ جاري الإضافة...';
+    try{
+      const reg=await api('register',{data:{name:fields.name,service:fields.service,city:fields.city,price:fields.price,regions:fields.regions,occasions:fields.occasions,phone:fields.phone,link:fields.link,dates:fields.dates,bio:fields.bio,website:''},photos:[]});
+      if(!reg.ok)throw new Error(reg.error||'فشل الإنشاء');
+      const ap=await api('admin:setStatus',{id:reg.id,status:'معتمد'});
+      if(!ap.ok)throw new Error(ap.error||'أُنشئ لكن تعذّر الاعتماد');
+      const extra={};
+      if(Number(fields.rating))extra.rating=fields.rating;
+      if(Number(fields.reviews))extra.reviews=fields.reviews;
+      if(fields.photos)extra.photos=fields.photos;
+      if(Object.keys(extra).length)await api('admin:update',{id:reg.id,fields:extra});
+      btn.disabled=false;btn.textContent='إضافة واعتماد';
+      closeEdit();toast('✅ تمت الإضافة والاعتماد — ظاهر بالموقع الآن');
+      loadAll();
+    }catch(err){
+      btn.disabled=false;btn.textContent='إضافة واعتماد';
+      toast('❌ '+err.message);
+    }
+    return;
+  }
+
+  /* ---- وضع التعديل ---- */
   btn.disabled=true;btn.textContent='⏳ جاري الحفظ...';
   const out=await api('admin:update',{id:editingId,fields:fields});
   btn.disabled=false;btn.textContent='حفظ التعديلات';
