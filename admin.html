@@ -87,6 +87,17 @@ main{max-width:1100px;margin:0 auto;padding:24px 20px 60px}
 .toast{position:fixed;bottom:20px;right:50%;transform:translateX(50%);background:var(--ink);color:#fff;padding:10px 22px;border-radius:999px;font-size:.83rem;z-index:200;display:none}
 .toast.show{display:block;animation:pop .2s ease}
 @keyframes pop{from{opacity:0;transform:translateX(50%) translateY(8px)}to{opacity:1;transform:translateX(50%) translateY(0)}}
+.cal{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px;max-width:360px}
+.cal-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;font-weight:700;font-size:.9rem;color:var(--ink)}
+.cal-head button{background:var(--bg2);border:1px solid var(--line);border-radius:8px;cursor:pointer;padding:2px 12px;font-family:inherit;font-size:1rem;color:var(--ink)}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;text-align:center}
+.cal-grid .dow{font-size:.62rem;color:var(--ink-dim);padding:2px 0;font-weight:600}
+.cal-day{aspect-ratio:1;border:1px solid var(--line);border-radius:8px;background:var(--bg);font-family:inherit;font-size:.78rem;cursor:pointer;color:var(--ink);padding:0}
+.cal-day:disabled{opacity:.25;cursor:default}
+.cal-day.a{background:var(--green);border-color:var(--green);color:#fff;font-weight:700}
+.cal-day.b{background:var(--sadu-red);border-color:var(--sadu-red);color:#fff;font-weight:700}
+.cal-legend{display:flex;gap:14px;font-size:.72rem;color:var(--ink-dim);margin-top:8px;flex-wrap:wrap}
+.cal-legend i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-inline-end:4px;vertical-align:middle}
 @media(max-width:600px){.fgrid{grid-template-columns:1fr}}
 </style>
 </head>
@@ -160,7 +171,10 @@ main{max-width:1100px;margin:0 auto;padding:24px 20px 60px}
         <div class="full"><label>المناسبات (افصل بـ ،)</label><input id="eOccasions"></div>
         <div><label>الجوال</label><input id="ePhone" dir="ltr"></div>
         <div><label>الرابط</label><input id="eLink" dir="ltr"></div>
-        <div class="full"><label>التواريخ المتاحة (افصل بـ ،)</label><input id="eDates"></div>
+        <div class="full"><label>تقويم المزود</label>
+          <div class="cal" id="eCal"></div>
+          <div class="cal-legend"><span><i style="background:var(--green)"></i>متاح</span><span><i style="background:var(--sadu-red)"></i>محجوز</span><span>اضغط: مرة متاح، مرتين محجوز، ثلاث إلغاء</span></div>
+        </div>
         <div class="full"><label>النبذة</label><textarea id="eBio" rows="3"></textarea></div>
         <div class="full"><label>روابط الصور (افصل بـ | ) — اختياري</label><input id="ePhotos" dir="ltr" placeholder="https://... | https://..."></div>
         <div class="full" id="notesWrap" style="display:none"><label>📝 ملاحظات إدارية (ما تظهر للعملاء)</label><textarea id="eNotes" rows="2" placeholder="مثال: دفع الرسوم بتاريخ كذا / بانتظار السجل التجاري..."></textarea></div>
@@ -241,6 +255,50 @@ function updateStats(){
   document.getElementById('stPending').textContent=providers.filter(p=>p.status==='قيد المراجعة').length;
   document.getElementById('stStopped').textContent=providers.filter(p=>p.status==='موقوف').length;
 }
+
+const AR_MONTHS=["يناير","فبراير","مارس","أبريل","مايو","يونيو","يوليو","أغسطس","سبتمبر","أكتوبر","نوفمبر","ديسمبر"];
+const AR_DOW=["أحد","اثنين","ثلاثاء","أربعاء","خميس","جمعة","سبت"];
+function isoOf(y,m,d){return y+'-'+String(m+1).padStart(2,'0')+'-'+String(d).padStart(2,'0');}
+function todayISO(){const t=new Date();return isoOf(t.getFullYear(),t.getMonth(),t.getDate());}
+function isISO(x){return /^\d{4}-\d{2}-\d{2}$/.test(x);}
+function makeCalendar(containerId){
+  const el=document.getElementById(containerId);
+  const state=new Map();
+  const now=new Date();
+  let vy=now.getFullYear(),vm=now.getMonth();
+  const minISO=todayISO();
+  function render(){
+    const first=new Date(vy,vm,1);
+    const daysIn=new Date(vy,vm+1,0).getDate();
+    let html='<div class="cal-head"><button type="button" data-nav="-1">›</button><span>'+AR_MONTHS[vm]+' '+vy+'</span><button type="button" data-nav="1">‹</button></div><div class="cal-grid">'+AR_DOW.map(d=>'<span class="dow">'+d.slice(0,1)+'</span>').join('');
+    for(let i=0;i<first.getDay();i++)html+='<span></span>';
+    for(let d=1;d<=daysIn;d++){
+      const iso=isoOf(vy,vm,d);
+      html+='<button type="button" class="cal-day '+(state.get(iso)||'')+'" data-d="'+iso+'"'+(iso<minISO?' disabled':'')+'>'+d+'</button>';
+    }
+    el.innerHTML=html+'</div>';
+  }
+  el.addEventListener('click',e=>{
+    const nav=e.target.getAttribute('data-nav');
+    if(nav){vm+=Number(nav);if(vm<0){vm=11;vy--;}if(vm>11){vm=0;vy++;}render();return;}
+    const d=e.target.getAttribute('data-d');
+    if(!d||e.target.disabled)return;
+    const cur=state.get(d);
+    if(!cur)state.set(d,'a');else if(cur==='a')state.set(d,'b');else state.delete(d);
+    e.target.className='cal-day '+(state.get(d)||'');
+  });
+  render();
+  return {
+    serialize(){return [...state.entries()].sort((a,b)=>a[0]<b[0]?-1:1).map(([d,st])=>st==='b'?'!'+d:d).join('، ');},
+    load(str){state.clear();String(str||'').split('،').map(x=>x.trim()).forEach(t=>{
+      if(t.startsWith('!')&&isISO(t.slice(1)))state.set(t.slice(1),'b');
+      else if(isISO(t))state.set(t,'a');
+    });render();},
+    reset(){state.clear();vy=now.getFullYear();vm=now.getMonth();render();}
+  };
+}
+let eCal=null;
+function ensureCal(){if(!eCal)eCal=makeCalendar('eCal');return eCal;}
 
 function esc(s){return String(s==null?'':s).replace(/[<>&"]/g,c=>({'<':'&lt;','>':'&gt;','&':'&amp;','"':'&quot;'}[c]));}
 
@@ -361,7 +419,7 @@ function openEdit(id){
   document.getElementById('eOccasions').value=p.occasions||'';
   document.getElementById('ePhone').value=p.phone||'';
   document.getElementById('eLink').value=p.link||'';
-  document.getElementById('eDates').value=p.dates||'';
+  ensureCal().load(p.dates||'');
   document.getElementById('eBio').value=p.bio||'';
   document.getElementById('eRating').value=p.rating||0;
   document.getElementById('eReviews').value=p.reviews||0;
@@ -378,7 +436,8 @@ function closeEdit(){document.getElementById('editModal').classList.remove('open
 let addMode=false;
 function openAdd(){
   editingId=null;addMode=true;
-  ['eName','eCity','ePrice','eRegions','eOccasions','ePhone','eLink','eDates','eBio','ePhotos'].forEach(id=>document.getElementById(id).value='');
+  ['eName','eCity','ePrice','eRegions','eOccasions','ePhone','eLink','eBio','ePhotos'].forEach(id=>document.getElementById(id).value='');
+  ensureCal().reset();
   document.getElementById('eService').value='تصوير';
   document.getElementById('eRating').value=0;
   document.getElementById('eReviews').value=0;
@@ -399,7 +458,7 @@ async function saveEdit(){
     occasions:document.getElementById('eOccasions').value.trim(),
     phone:document.getElementById('ePhone').value.trim(),
     link:document.getElementById('eLink').value.trim(),
-    dates:document.getElementById('eDates').value.trim(),
+    dates:ensureCal().serialize(),
     bio:document.getElementById('eBio').value.trim(),
     rating:document.getElementById('eRating').value,
     reviews:document.getElementById('eReviews').value,
