@@ -459,7 +459,8 @@ footer .logo{font-size:1.5rem}
    إعدادات دبّره
 ============================================================ */
 const CONFIG = {
-  API_URL: "https://script.google.com/macros/s/AKfycbygyrx1oYJA6Ll1R5CL0xm9eAFbPRspd04x81tnJH4Sze8s7V3UhHEfmm4JhOPAtCGN/exec"
+  API_URL: "https://script.google.com/macros/s/AKfycbygyrx1oYJA6Ll1R5CL0xm9eAFbPRspd04x81tnJH4Sze8s7V3UhHEfmm4JhOPAtCGN/exec",
+  PLATFORM_WA: "9665XXXXXXXX" // ← رقم واتساب المنصة اللي يستقبل رسائل التحقق (بصيغة دولية بدون +)
 };
 
 const allRegions=["الرياض","مكة المكرمة — جدة","الشرقية — الدمام","المدينة المنورة","القصيم","الحدود الشمالية — عرعر","تبوك","حائل","عسير — أبها","جازان","نجران","الجوف"];
@@ -860,12 +861,14 @@ async function submitRegister(){
     const out=await res.json();
     if(!out.ok) throw new Error(out.error||'فشل الإرسال');
     regOriginal=document.getElementById('regBody').innerHTML;
+    const vMsg=encodeURIComponent('رمز التحقق لتسجيلي في دبّره: '+out.vcode+'\nالاسم: '+data.name+'\n(أرسل الرسالة كما هي بدون تعديل)');
     document.getElementById('regBody').innerHTML=`
       <div class="success-msg">
-        <div class="icon">🎉</div>
-        <h3>تم استلام طلبك يا ${esc(data.name)}!</h3>
-        <p>بنتواصل معك على واتساب <b dir="ltr">${esc(data.phone)}</b> برابط دفع رسوم التسجيل (١٠ ريال).<br>بعد الاعتماد يظهر ملفك للعملاء خلال ٢٤ ساعة، ويوصلك <b>رمز دخولك لبوابة المزودين</b> عشان تتحكم بملفك وتقويمك بنفسك 🔑</p>
-        <button class="btn btn-gold" style="margin-top:16px" onclick="closeModal('registerModal')">تمام</button>
+        <div class="icon">📲</div>
+        <h3>خطوة أخيرة: تحقق من رقمك</h3>
+        <p>عشان نتأكد أن الرقم <b dir="ltr">${esc(data.phone)}</b> رقمك فعلاً، اضغط الزر وأرسل رسالة التحقق الجاهزة <b>من نفس الرقم</b> — بدون أي تعديل.</p>
+        <a class="btn btn-green" style="margin-top:14px;min-width:230px" href="https://wa.me/${CONFIG.PLATFORM_WA}?text=${vMsg}" target="_blank" rel="noopener" onclick="waVerifyClicked('${esc(data.name)}')">💬 اضغط للتحقق عبر واتساب</a>
+        <p style="font-size:.75rem;margin-top:14px" id="vNote">⚠️ التسجيلات غير المتحقق منها لا يتم اعتمادها.</p>
       </div>`;
   }catch(err){
     btn.disabled=false;btn.textContent='إرسال الطلب';
@@ -873,6 +876,10 @@ async function submitRegister(){
   }
 }
 
+function waVerifyClicked(name){
+  const n=document.getElementById('vNote');
+  if(n)n.innerHTML='✅ ممتاز! بعد إرسال الرسالة، بنراجع طلبك ونتواصل معك برابط الدفع (١٠ ريال) ورمز دخولك للبوابة. تقدر تسكر هذه النافذة.';
+}
 function closeModal(id){
   document.getElementById(id).classList.remove('open');
   document.body.style.overflow='';
