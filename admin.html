@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="color-scheme" content="only light">
+<meta name="robots" content="noindex, nofollow">
+<title>دبّره — لوحة الإدارة</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Aref+Ruqaa:wght@700&family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#FFFFFF;--bg2:#FAF7F2;--card:#FFFFFF;
+  --ink:#2B2118;--ink-dim:#7A6A55;
+  --sadu-red:#A63A46;--gold:#B8862F;--green:#2F6647;
+  --line:#E8DFD2;--radius:14px;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{background:#fff;color-scheme:only light}
+body{background:#fff!important;color:var(--ink);font-family:'IBM Plex Sans Arabic',sans-serif;line-height:1.7;min-height:100vh}
+.sadu{height:12px;background:repeating-linear-gradient(90deg,var(--sadu-red) 0 18px,var(--gold) 18px 24px,#fff 24px 30px,var(--green) 30px 44px,#fff 44px 50px,var(--gold) 50px 56px)}
+header{background:rgba(255,255,255,.95);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:40}
+.header-inner{max-width:1100px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;padding:10px 20px}
+.logo{font-family:'Aref Ruqaa',serif;font-size:1.6rem;font-weight:700;color:var(--gold);line-height:1}
+.logo small{display:block;font-family:'IBM Plex Sans Arabic';font-size:.62rem;font-weight:400;color:var(--ink-dim)}
+main{max-width:1100px;margin:0 auto;padding:24px 20px 60px}
+.btn{display:inline-block;border:none;cursor:pointer;font-family:inherit;font-size:.85rem;font-weight:600;padding:9px 18px;border-radius:999px;transition:transform .15s,opacity .15s}
+.btn:hover{transform:translateY(-1px)}
+.btn:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+.btn:disabled{opacity:.5;cursor:not-allowed;transform:none}
+.btn-gold{background:var(--gold);color:#fff}
+.btn-green{background:var(--green);color:#fff}
+.btn-red{background:var(--sadu-red);color:#fff}
+.btn-outline{background:#fff;color:var(--ink-dim);border:1.5px solid var(--line)}
+.btn-sm{padding:6px 14px;font-size:.78rem}
+
+/* دخول */
+.login-wrap{max-width:400px;margin:60px auto;text-align:center;background:var(--bg2);border:1px solid var(--line);border-radius:var(--radius);padding:36px 28px}
+.login-wrap h1{font-family:'Aref Ruqaa',serif;color:var(--gold);font-size:1.6rem;margin-bottom:6px}
+.login-wrap p{color:var(--ink-dim);font-size:.85rem;margin-bottom:18px}
+.login-wrap input{width:100%;padding:12px;border:1px solid var(--line);border-radius:10px;font-family:inherit;font-size:.95rem;text-align:center;margin-bottom:12px;background:#fff;color:var(--ink)}
+.login-wrap input:focus{outline:2px solid var(--gold)}
+.err{color:var(--sadu-red);font-size:.8rem;min-height:1.2em;margin-bottom:8px}
+
+/* إحصائيات */
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;margin-bottom:22px}
+.stat{background:var(--bg2);border:1px solid var(--line);border-radius:var(--radius);padding:14px;text-align:center}
+.stat .num{font-family:'Aref Ruqaa',serif;font-size:1.8rem;color:var(--gold);line-height:1.2}
+.stat .lbl{font-size:.75rem;color:var(--ink-dim)}
+.stat.s-approved .num{color:var(--green)}
+.stat.s-pending .num{color:var(--sadu-red)}
+
+/* فلاتر */
+.toolbar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:16px}
+.toolbar select,.toolbar input{padding:8px 12px;border:1px solid var(--line);border-radius:10px;font-family:inherit;font-size:.83rem;background:#fff;color:var(--ink)}
+.toolbar .spacer{flex:1}
+
+/* بطاقات المزودين */
+.plist{display:flex;flex-direction:column;gap:12px}
+.prow{background:#fff;border:1px solid var(--line);border-radius:var(--radius);padding:14px 16px;box-shadow:0 2px 8px rgba(43,33,24,.05)}
+.prow-top{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;align-items:center}
+.prow h3{font-size:1rem}
+.prow .meta{font-size:.78rem;color:var(--ink-dim)}
+.status{font-size:.72rem;padding:3px 12px;border-radius:999px;font-weight:600;white-space:nowrap}
+.st-معتمد{background:rgba(47,102,71,.1);color:var(--green);border:1px solid var(--green)}
+.st-قيد{background:rgba(184,134,47,.1);color:var(--gold);border:1px solid var(--gold)}
+.st-موقوف{background:rgba(166,58,70,.1);color:var(--sadu-red);border:1px solid var(--sadu-red)}
+.prow-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.pdetails{font-size:.8rem;color:var(--ink-dim);margin-top:6px}
+.pdetails b{color:var(--ink)}
+.thumbs{display:flex;gap:6px;margin-top:8px}
+.thumbs img{width:54px;height:54px;object-fit:cover;border-radius:8px;border:1px solid var(--line)}
+.empty{text-align:center;padding:40px;color:var(--ink-dim);background:var(--bg2);border:1px dashed var(--line);border-radius:var(--radius)}
+
+/* مودال تعديل */
+.modal-overlay{position:fixed;inset:0;background:rgba(43,33,24,.45);z-index:100;display:none;align-items:center;justify-content:center;padding:16px}
+.modal-overlay.open{display:flex}
+.modal{background:#fff;width:100%;max-width:560px;max-height:90vh;overflow-y:auto;border-radius:16px;border:1px solid var(--line)}
+.modal-head{position:sticky;top:0;background:#fff;display:flex;justify-content:space-between;align-items:center;padding:14px 18px;border-bottom:1px solid var(--line);z-index:5}
+.modal-body{padding:18px}
+.close-btn{background:none;border:none;color:var(--ink-dim);font-size:1.4rem;cursor:pointer;padding:2px 8px}
+.fgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.fgrid .full{grid-column:1/-1}
+.fgrid label{display:block;font-size:.72rem;color:var(--gold);font-weight:600;margin-bottom:3px}
+.fgrid input,.fgrid select,.fgrid textarea{width:100%;padding:9px 11px;border:1px solid var(--line);border-radius:9px;font-family:inherit;font-size:.83rem;background:#fff;color:var(--ink)}
+.fgrid input:focus,.fgrid select:focus,.fgrid textarea:focus{outline:2px solid var(--gold)}
+.toast{position:fixed;bottom:20px;right:50%;transform:translateX(50%);background:var(--ink);color:#fff;padding:10px 22px;border-radius:999px;font-size:.83rem;z-index:200;display:none}
+.toast.show{display:block;animation:pop .2s ease}
+@keyframes pop{from{opacity:0;transform:translateX(50%) translateY(8px)}to{opacity:1;transform:translateX(50%) translateY(0)}}
+@media(max-width:600px){.fgrid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="sadu"></div>
+<header>
+  <div class="header-inner">
+    <div class="logo">دبّره<small>لوحة الإدارة</small></div>
+    <div id="headerActions" style="display:none;gap:8px">
+      <button class="btn btn-outline btn-sm" onclick="loadAll()">🔄 تحديث</button>
+      <button class="btn btn-outline btn-sm" onclick="logout()">خروج</button>
+    </div>
+  </div>
+</header>
+
+<main>
+  <!-- شاشة الدخول -->
+  <div class="login-wrap" id="loginView">
+    <h1>لوحة الإدارة</h1>
+    <p>أدخل كلمة سر الإدارة للمتابعة</p>
+    <input type="password" id="adminPass" placeholder="كلمة السر" onkeydown="if(event.key==='Enter')login()">
+    <div class="err" id="loginErr"></div>
+    <button class="btn btn-gold" style="width:100%" id="loginBtn" onclick="login()">دخول</button>
+  </div>
+
+  <!-- لوحة التحكم -->
+  <div id="dashView" style="display:none">
+    <div class="stats">
+      <div class="stat"><div class="num" id="stTotal">0</div><div class="lbl">إجمالي المزودين</div></div>
+      <div class="stat s-approved"><div class="num" id="stApproved">0</div><div class="lbl">معتمد (ظاهر بالموقع)</div></div>
+      <div class="stat s-pending"><div class="num" id="stPending">0</div><div class="lbl">قيد المراجعة</div></div>
+      <div class="stat"><div class="num" id="stStopped">0</div><div class="lbl">موقوف</div></div>
+    </div>
+
+    <div class="toolbar">
+      <select id="fStatus" onchange="renderList()">
+        <option value="">كل الحالات</option>
+        <option value="قيد المراجعة">قيد المراجعة</option>
+        <option value="معتمد">معتمد</option>
+        <option value="موقوف">موقوف</option>
+      </select>
+      <input id="fSearch" placeholder="🔍 بحث بالاسم أو المدينة" oninput="renderList()" style="min-width:200px">
+      <div class="spacer"></div>
+    </div>
+
+    <div class="plist" id="plist"></div>
+  </div>
+</main>
+
+<!-- مودال التعديل -->
+<div class="modal-overlay" id="editModal" onclick="if(event.target===this)closeEdit()">
+  <div class="modal">
+    <div class="modal-head"><h3 style="font-size:1rem">تعديل بيانات المزود</h3><button class="close-btn" onclick="closeEdit()">✕</button></div>
+    <div class="modal-body">
+      <div class="fgrid">
+        <div><label>الاسم</label><input id="eName"></div>
+        <div><label>الخدمة</label>
+          <select id="eService">
+            <option>تصوير</option><option>صبابين وصبابات</option><option>دي جي وتنسيق صوتي</option>
+            <option>قاعات أفراح</option><option>استراحات</option><option>كوش وتنسيق</option>
+            <option>ضيافة وبوفيه</option><option>فرق شعبية</option>
+          </select>
+        </div>
+        <div><label>المدينة</label><input id="eCity"></div>
+        <div><label>السعر (ريال)</label><input id="ePrice" type="number"></div>
+        <div class="full"><label>المناطق (افصل بـ ،)</label><input id="eRegions"></div>
+        <div class="full"><label>المناسبات (افصل بـ ،)</label><input id="eOccasions"></div>
+        <div><label>الجوال</label><input id="ePhone" dir="ltr"></div>
+        <div><label>الرابط</label><input id="eLink" dir="ltr"></div>
+        <div class="full"><label>التواريخ المتاحة (افصل بـ ،)</label><input id="eDates"></div>
+        <div class="full"><label>النبذة</label><textarea id="eBio" rows="3"></textarea></div>
+        <div><label>التقييم (٠-٥)</label><input id="eRating" type="number" step="0.1" min="0" max="5"></div>
+        <div><label>عدد التقييمات</label><input id="eReviews" type="number" min="0"></div>
+      </div>
+      <div style="text-align:center;margin-top:16px">
+        <button class="btn btn-gold" id="saveBtn" onclick="saveEdit()" style="min-width:180px">حفظ التعديلات</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const CONFIG={API_URL:"https://script.google.com/macros/s/AKfycbxmyszZiXt2JAFEUeY82PVRm2DMv2lCYU-zJbTVUNAFmkmcx9IFzyzED0tMBF0lFcP5/exec"};
+
+let providers=[];
+let editingId=null;
+
+/* ====== جلسة ====== */
+function key(){return sessionStorage.getItem('dbr_admin_key')||'';}
+function logout(){sessionStorage.removeItem('dbr_admin_key');location.reload();}
+
+async function api(action,extra){
+  const res=await fetch(CONFIG.API_URL,{
+    method:'POST',
+    headers:{'Content-Type':'text/plain;charset=utf-8'},
+    body:JSON.stringify(Object.assign({action:action,key:key()},extra||{}))
+  });
+  return res.json();
+}
+
+async function login(){
+  const pass=document.getElementById('adminPass').value;
+  if(!pass)return;
+  const btn=document.getElementById('loginBtn');
+  btn.disabled=true;btn.textContent='⏳ جاري التحقق...';
+  document.getElementById('loginErr').textContent='';
+  sessionStorage.setItem('dbr_admin_key',pass);
+  try{
+    const out=await api('admin:login');
+    if(!out.ok)throw new Error('كلمة السر غير صحيحة');
+    showDash();
+  }catch(err){
+    sessionStorage.removeItem('dbr_admin_key');
+    document.getElementById('loginErr').textContent=err.message==='كلمة السر غير صحيحة'?err.message:'تعذّر الاتصال بالخادم';
+    btn.disabled=false;btn.textContent='دخول';
+  }
+}
+
+function showDash(){
+  document.getElementById('loginView').style.display='none';
+  document.getElementById('dashView').style.display='block';
+  document.getElementById('headerActions').style.display='flex';
+  loadAll();
+}
+
+/* ====== تحميل وعرض ====== */
+async function loadAll(){
+  document.getElementById('plist').innerHTML='<div class="empty">⏳ جاري التحميل...</div>';
+  try{
+    const out=await api('admin:list');
+    if(!out.ok)throw new Error(out.error);
+    providers=out.providers;
+    updateStats();
+    renderList();
+  }catch(err){
+    document.getElementById('plist').innerHTML='<div class="empty">خطأ: '+esc(err.message)+'<br><button class="btn btn-outline btn-sm" style="margin-top:10px" onclick="loadAll()">إعادة المحاولة</button></div>';
+  }
+}
+
+function updateStats(){
+  document.getElementById('stTotal').textContent=providers.length;
+  document.getElementById('stApproved').textContent=providers.filter(p=>p.status==='معتمد').length;
+  document.getElementById('stPending').textContent=providers.filter(p=>p.status==='قيد المراجعة').length;
+  document.getElementById('stStopped').textContent=providers.filter(p=>p.status==='موقوف').length;
+}
+
+function esc(s){return String(s==null?'':s).replace(/[<>&"]/g,c=>({'<':'&lt;','>':'&gt;','&':'&amp;','"':'&quot;'}[c]));}
+
+function renderList(){
+  const st=document.getElementById('fStatus').value;
+  const q=document.getElementById('fSearch').value.trim();
+  const list=providers.filter(p=>
+    (!st||p.status===st)&&
+    (!q||String(p.name).includes(q)||String(p.city).includes(q))
+  );
+  const el=document.getElementById('plist');
+  if(!list.length){el.innerHTML='<div class="empty">لا يوجد مزودين بهذا الفلتر</div>';return;}
+  el.innerHTML=list.map(p=>{
+    const stClass=p.status==='معتمد'?'st-معتمد':(p.status==='موقوف'?'st-موقوف':'st-قيد');
+    const photos=String(p.photos||'').split('|').map(x=>x.trim()).filter(Boolean);
+    const wa='https://wa.me/966'+String(p.phone).replace(/^0/,'');
+    return `
+    <div class="prow">
+      <div class="prow-top">
+        <div>
+          <h3>${esc(p.name)} <span class="meta">— ${esc(p.service)} · ${esc(p.city)}</span></h3>
+          <div class="meta">${esc(p.regions)} · يبدأ من ${Number(p.price).toLocaleString('ar-SA')} ريال · ★ ${p.rating||0} (${p.reviews||0})</div>
+        </div>
+        <span class="status ${stClass}">${esc(p.status)}</span>
+      </div>
+      <div class="pdetails"><b>واتساب:</b> <a href="${wa}" target="_blank" rel="noopener" style="color:var(--green)" dir="ltr">${esc(p.phone)}</a> &nbsp; <b>المناسبات:</b> ${esc(p.occasions)} &nbsp; <b>التواريخ:</b> ${esc(p.dates)||'—'}</div>
+      ${p.bio?`<div class="pdetails">${esc(p.bio)}</div>`:''}
+      ${photos.length?`<div class="thumbs">${photos.map(u=>`<img src="${esc(u)}" alt="" loading="lazy">`).join('')}</div>`:''}
+      <div class="prow-actions">
+        ${p.status!=='معتمد'?`<button class="btn btn-green btn-sm" onclick="setStatus('${p.id}','معتمد')">✔ اعتماد</button>`:''}
+        ${p.status!=='موقوف'?`<button class="btn btn-outline btn-sm" onclick="setStatus('${p.id}','موقوف')">⏸ إيقاف</button>`:''}
+        ${p.status==='موقوف'?`<button class="btn btn-green btn-sm" onclick="setStatus('${p.id}','معتمد')">✔ إعادة تفعيل</button>`:''}
+        <button class="btn btn-gold btn-sm" onclick="openEdit('${p.id}')">✏️ تعديل</button>
+        <button class="btn btn-red btn-sm" onclick="delProvider('${p.id}','${esc(p.name)}')">🗑 حذف</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+/* ====== عمليات ====== */
+async function setStatus(id,status){
+  toast('⏳ جاري التحديث...');
+  const out=await api('admin:setStatus',{id:id,status:status});
+  if(out.ok){
+    const p=providers.find(x=>String(x.id)===String(id));
+    if(p)p.status=status;
+    updateStats();renderList();
+    toast(status==='معتمد'?'✅ تم الاعتماد — صار ظاهر بالموقع':'تم التحديث');
+  }else toast('❌ '+(out.error||'فشل'));
+}
+
+async function delProvider(id,name){
+  if(!confirm('متأكد من حذف "'+name+'" نهائياً؟ ما يمكن التراجع.'))return;
+  toast('⏳ جاري الحذف...');
+  const out=await api('admin:delete',{id:id});
+  if(out.ok){
+    providers=providers.filter(x=>String(x.id)!==String(id));
+    updateStats();renderList();
+    toast('🗑 تم الحذف');
+  }else toast('❌ '+(out.error||'فشل'));
+}
+
+function openEdit(id){
+  const p=providers.find(x=>String(x.id)===String(id));
+  if(!p)return;
+  editingId=id;
+  document.getElementById('eName').value=p.name||'';
+  document.getElementById('eService').value=p.service||'تصوير';
+  document.getElementById('eCity').value=p.city||'';
+  document.getElementById('ePrice').value=p.price||'';
+  document.getElementById('eRegions').value=p.regions||'';
+  document.getElementById('eOccasions').value=p.occasions||'';
+  document.getElementById('ePhone').value=p.phone||'';
+  document.getElementById('eLink').value=p.link||'';
+  document.getElementById('eDates').value=p.dates||'';
+  document.getElementById('eBio').value=p.bio||'';
+  document.getElementById('eRating').value=p.rating||0;
+  document.getElementById('eReviews').value=p.reviews||0;
+  document.getElementById('editModal').classList.add('open');
+}
+function closeEdit(){document.getElementById('editModal').classList.remove('open');editingId=null;}
+
+async function saveEdit(){
+  if(!editingId)return;
+  const fields={
+    name:document.getElementById('eName').value.trim(),
+    service:document.getElementById('eService').value,
+    city:document.getElementById('eCity').value.trim(),
+    price:document.getElementById('ePrice').value,
+    regions:document.getElementById('eRegions').value.trim(),
+    occasions:document.getElementById('eOccasions').value.trim(),
+    phone:document.getElementById('ePhone').value.trim(),
+    link:document.getElementById('eLink').value.trim(),
+    dates:document.getElementById('eDates').value.trim(),
+    bio:document.getElementById('eBio').value.trim(),
+    rating:document.getElementById('eRating').value,
+    reviews:document.getElementById('eReviews').value
+  };
+  const btn=document.getElementById('saveBtn');
+  btn.disabled=true;btn.textContent='⏳ جاري الحفظ...';
+  const out=await api('admin:update',{id:editingId,fields:fields});
+  btn.disabled=false;btn.textContent='حفظ التعديلات';
+  if(out.ok){
+    const p=providers.find(x=>String(x.id)===String(editingId));
+    Object.assign(p,fields,{price:Number(fields.price)||0,rating:Number(fields.rating)||0,reviews:Number(fields.reviews)||0});
+    closeEdit();renderList();updateStats();
+    toast('✅ تم الحفظ');
+  }else toast('❌ '+(out.error||'فشل الحفظ'));
+}
+
+let toastTimer=null;
+function toast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg;t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer=setTimeout(()=>t.classList.remove('show'),2500);
+}
+
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeEdit();});
+
+/* دخول تلقائي إذا فيه جلسة سابقة */
+if(key()){
+  api('admin:login').then(out=>{if(out.ok)showDash();else sessionStorage.removeItem('dbr_admin_key');}).catch(()=>{});
+}
+</script>
+</body>
+</html>
