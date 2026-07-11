@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="color-scheme" content="only light">
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#B8862F">
+<title>دبّره — بوابة المزودين</title>
+<link rel="icon" href='data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect width="100" height="100" rx="20" fill="%23B8862F"/><text x="50" y="72" font-size="62" text-anchor="middle" fill="white" font-family="serif" font-weight="bold">د</text></svg>'>
+<link href="https://fonts.googleapis.com/css2?family=Aref+Ruqaa:wght@700&family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#FFF;--bg2:#FAF7F2;--card:#FFF;--ink:#2B2118;--ink-dim:#7A6A55;--sadu-red:#A63A46;--gold:#B8862F;--gold-soft:rgba(184,134,47,.09);--green:#2F6647;--green-soft:rgba(47,102,71,.09);--line:#E8DFD2;--radius:14px}
+*{margin:0;padding:0;box-sizing:border-box}
+html{background:#fff;color-scheme:only light}
+body{background:#fff!important;color:var(--ink);font-family:'IBM Plex Sans Arabic',sans-serif;line-height:1.7;min-height:100vh}
+.sadu{height:12px;background:repeating-linear-gradient(90deg,var(--sadu-red) 0 18px,var(--gold) 18px 24px,#fff 24px 30px,var(--green) 30px 44px,#fff 44px 50px,var(--gold) 50px 56px)}
+header{background:rgba(255,255,255,.95);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:40}
+.header-inner{max-width:860px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;padding:10px 20px}
+.logo{font-family:'Aref Ruqaa',serif;font-size:1.6rem;font-weight:700;color:var(--gold);line-height:1;text-decoration:none}
+.logo small{display:block;font-family:'IBM Plex Sans Arabic';font-size:.62rem;font-weight:400;color:var(--ink-dim)}
+main{max-width:860px;margin:0 auto;padding:24px 16px 70px}
+.btn{display:inline-block;border:none;cursor:pointer;font-family:inherit;font-size:.85rem;font-weight:600;padding:9px 18px;border-radius:999px;transition:transform .15s,opacity .15s;text-decoration:none;text-align:center}
+.btn:hover{transform:translateY(-1px)}
+.btn:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+.btn:disabled{opacity:.5;cursor:not-allowed;transform:none}
+.btn-gold{background:var(--gold);color:#fff}
+.btn-outline{background:#fff;color:var(--gold);border:1.5px solid var(--gold)}
+.btn-green{background:var(--green);color:#fff}
+.btn-red{background:var(--sadu-red);color:#fff}
+.btn-sm{padding:6px 14px;font-size:.78rem}
+
+/* دخول */
+.login-wrap{max-width:400px;margin:8vh auto;background:var(--bg2);border:1px solid var(--line);border-radius:var(--radius);padding:30px;text-align:center}
+.login-wrap h1{font-family:'Aref Ruqaa',serif;color:var(--gold);font-size:1.6rem}
+.login-wrap p{font-size:.85rem;color:var(--ink-dim);margin:4px 0 14px}
+.login-wrap input{width:100%;padding:12px;border:1px solid var(--line);border-radius:10px;font-family:inherit;margin-bottom:12px;text-align:center;font-size:1rem;background:#fff;color:var(--ink)}
+.login-wrap input:focus{outline:2px solid var(--gold)}
+.err{color:var(--sadu-red);font-size:.82rem;min-height:1.5em;margin-bottom:6px}
+.login-help{font-size:.75rem;color:var(--ink-dim);margin-top:16px;border-top:1px dashed var(--line);padding-top:14px}
+
+/* لوحة المزود */
+.welcome{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:16px}
+.welcome h1{font-family:'Aref Ruqaa',serif;font-size:1.5rem;color:var(--ink)}
+.status{display:inline-block;font-size:.7rem;padding:2px 12px;border-radius:999px;vertical-align:middle;margin-inline-start:8px}
+.st-a{background:var(--green-soft);color:var(--green);border:1px solid var(--green)}
+.st-p{background:var(--gold-soft);color:var(--gold);border:1px solid var(--gold)}
+.st-s{background:rgba(166,58,70,.1);color:var(--sadu-red);border:1px solid var(--sadu-red)}
+.vbadge{display:inline-block;font-size:.66rem;background:var(--green-soft);color:var(--green);border:1px solid var(--green);border-radius:999px;padding:1px 10px;vertical-align:middle;margin-inline-start:6px}
+
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:12px;margin-bottom:20px}
+.stat{background:var(--bg2);border:1px solid var(--line);border-radius:var(--radius);padding:12px;text-align:center}
+.stat .num{font-family:'Aref Ruqaa',serif;font-size:1.5rem;color:var(--gold);line-height:1.3}
+.stat .lbl{font-size:.7rem;color:var(--ink-dim)}
+
+.pills{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px}
+.pill{background:#fff;border:1px solid var(--line);color:var(--ink-dim);padding:7px 18px;border-radius:999px;font-size:.85rem;cursor:pointer;font-family:inherit;font-weight:500}
+.pill.on{background:var(--gold);color:#fff;border-color:var(--gold);font-weight:700}
+
+.panel{background:#fff;border:1px solid var(--line);border-radius:var(--radius);padding:20px;box-shadow:0 2px 10px rgba(43,33,24,.05);display:none}
+.panel.on{display:block}
+.panel h2{font-size:1.05rem;color:var(--gold);margin-bottom:4px}
+.panel .desc{font-size:.8rem;color:var(--ink-dim);margin-bottom:14px}
+
+/* فورم */
+.fgrid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.fgrid .full{grid-column:1/-1}
+.fgrid label{display:block;font-size:.75rem;color:var(--gold);margin-bottom:4px;font-weight:600}
+.fgrid input,.fgrid select,.fgrid textarea{width:100%;background:var(--bg2);color:var(--ink);border:1px solid var(--line);border-radius:10px;padding:10px 12px;font-family:inherit;font-size:.88rem}
+.fgrid input:focus,.fgrid select:focus,.fgrid textarea:focus{outline:2px solid var(--gold)}
+.checks{display:flex;flex-wrap:wrap;gap:8px}
+.checks label{font-size:.76rem;color:var(--ink-dim);background:#fff;border:1px solid var(--line);border-radius:999px;padding:5px 12px;cursor:pointer;display:flex;align-items:center;gap:5px;margin:0;font-weight:400}
+.checks input{width:auto;accent-color:var(--gold)}
+.checks label:has(input:checked){border-color:var(--gold);color:var(--gold)}
+@media(max-width:600px){.fgrid{grid-template-columns:1fr}}
+
+/* تقويم */
+.cal{background:var(--bg2);border:1px solid var(--line);border-radius:12px;padding:12px;max-width:380px}
+.cal-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;font-weight:700;font-size:.9rem;color:var(--ink)}
+.cal-head button{background:#fff;border:1px solid var(--line);border-radius:8px;cursor:pointer;padding:2px 12px;font-family:inherit;font-size:1rem;color:var(--ink)}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;text-align:center}
+.cal-grid .dow{font-size:.62rem;color:var(--ink-dim);padding:2px 0;font-weight:600}
+.cal-day{aspect-ratio:1;border:1px solid var(--line);border-radius:8px;background:#fff;font-family:inherit;font-size:.78rem;cursor:pointer;color:var(--ink);padding:0}
+.cal-day:disabled{opacity:.25;cursor:default}
+.cal-day.a{background:var(--green);border-color:var(--green);color:#fff;font-weight:700}
+.cal-day.b{background:var(--sadu-red);border-color:var(--sadu-red);color:#fff;font-weight:700}
+.cal-legend{display:flex;gap:14px;font-size:.72rem;color:var(--ink-dim);margin-top:8px;flex-wrap:wrap}
+.cal-legend i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-inline-end:4px;vertical-align:middle}
+
+/* صور وشهادات */
+.imgs{display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:10px;margin:12px 0}
+.imgs .im{position:relative;aspect-ratio:1;border-radius:10px;overflow:hidden;border:1px solid var(--line)}
+.imgs .im img{width:100%;height:100%;object-fit:cover}
+.imgs .im button{position:absolute;top:6px;left:6px;background:rgba(166,58,70,.92);color:#fff;border:none;border-radius:999px;width:24px;height:24px;cursor:pointer;font-size:.8rem;line-height:1}
+.upload-note{font-size:.72rem;color:var(--ink-dim);margin-top:6px}
+
+.share-box{background:var(--gold-soft);border:1px dashed var(--gold);border-radius:12px;padding:14px;margin-top:20px;display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;font-size:.85rem}
+
+.toast{position:fixed;bottom:20px;right:50%;transform:translateX(50%);background:var(--ink);color:#fff;padding:10px 22px;border-radius:999px;font-size:.85rem;display:none;z-index:99}
+.toast.show{display:block}
+.savebar{margin-top:16px;text-align:center}
+</style>
+</head>
+<body>
+<div class="sadu"></div>
+<header>
+  <div class="header-inner">
+    <a class="logo" href="./">دبّره<small>بوابة المزودين</small></a>
+    <div id="headerActions" style="display:none;gap:8px">
+      <a class="btn btn-outline btn-sm" href="./" target="_blank">عرض الموقع</a>
+      <button class="btn btn-outline btn-sm" onclick="logout()">خروج</button>
+    </div>
+  </div>
+</header>
+
+<main>
+  <!-- الدخول -->
+  <div class="login-wrap" id="loginView">
+    <h1>بوابة المزودين</h1>
+    <p>ادخل بنفس رقم الجوال اللي سجلت فيه + رمز الدخول</p>
+    <input id="lPhone" dir="ltr" placeholder="05xxxxxxxx" inputmode="tel" maxlength="10">
+    <input id="lCode" dir="ltr" placeholder="رمز الدخول (٦ أرقام)" inputmode="numeric" maxlength="6" onkeydown="if(event.key==='Enter')login()">
+    <div class="err" id="loginErr"></div>
+    <button class="btn btn-gold" style="width:100%" id="loginBtn" onclick="login()">دخول</button>
+    <div class="login-help">
+      🔑 رمز الدخول يوصلك من إدارة دبّره على واتساب بعد اعتماد ملفك.<br>
+      نسيت رمزك أو ما وصلك؟ تواصل مع الإدارة وبنرسله لك فوراً.
+    </div>
+  </div>
+
+  <!-- اللوحة -->
+  <div id="dashView" style="display:none">
+    <div class="welcome">
+      <h1 id="wName"></h1>
+      <span id="wBadges"></span>
+    </div>
+
+    <div class="stats">
+      <div class="stat"><div class="num" id="sViews">0</div><div class="lbl">👁 مشاهدات ملفك</div></div>
+      <div class="stat"><div class="num" id="sRating">—</div><div class="lbl">⭐ تقييمك</div></div>
+      <div class="stat"><div class="num" id="sReviews">0</div><div class="lbl">عدد التقييمات</div></div>
+      <div class="stat"><div class="num" id="sAvail">0</div><div class="lbl">📅 أيام متاحة قادمة</div></div>
+    </div>
+
+    <div class="pills">
+      <button class="pill on" data-panel="pCal" onclick="switchPanel(this)">📅 تقويمي</button>
+      <button class="pill" data-panel="pInfo" onclick="switchPanel(this)">✏️ بياناتي</button>
+      <button class="pill" data-panel="pPhotos" onclick="switchPanel(this)">🖼️ صور أعمالي</button>
+      <button class="pill" data-panel="pCerts" onclick="switchPanel(this)">📜 شهاداتي</button>
+    </div>
+
+    <!-- تقويمي -->
+    <div class="panel on" id="pCal">
+      <h2>تقويم التوفر والحجوزات</h2>
+      <div class="desc">اضغط اليوم: مرة = <b style="color:var(--green)">متاح</b>، مرتين = <b style="color:var(--sadu-red)">محجوز</b>، ثلاث = إلغاء. العملاء يشوفون تقويمك مباشرة بملفك.</div>
+      <div class="cal" id="provCal"></div>
+      <div class="cal-legend"><span><i style="background:var(--green)"></i>متاح</span><span><i style="background:var(--sadu-red)"></i>محجوز</span></div>
+      <div class="savebar"><button class="btn btn-gold" id="calSaveBtn" onclick="saveCalendar()" style="min-width:190px">💾 حفظ التقويم</button></div>
+    </div>
+
+    <!-- بياناتي -->
+    <div class="panel" id="pInfo">
+      <h2>بيانات ملفك</h2>
+      <div class="desc">كل تعديل يظهر للعملاء فوراً بعد الحفظ. (رقم الجوال ثابت لأنه هويتك — للتغيير تواصل مع الإدارة)</div>
+      <div class="fgrid">
+        <div><label>الاسم / اسم النشاط</label><input id="iName"></div>
+        <div><label>نوع الخدمة</label>
+          <select id="iService">
+            <option>تصوير</option><option>صبابين وصبابات</option><option>دي جي وتنسيق صوتي</option>
+            <option>قاعات أفراح</option><option>استراحات</option><option>كوش وتنسيق</option>
+            <option>ضيافة وبوفيه</option><option>فرق شعبية</option>
+          </select>
+        </div>
+        <div><label>المدينة الرئيسية</label><input id="iCity"></div>
+        <div><label>السعر يبدأ من (ريال)</label><input id="iPrice" type="number"></div>
+        <div class="full"><label>المناطق اللي تغطيها</label><div class="checks" id="iRegions"></div></div>
+        <div class="full"><label>المناسبات اللي تخدمها</label><div class="checks" id="iOccasions"></div></div>
+        <div class="full"><label>رابط أعمالك (انستقرام...)</label><input id="iLink" dir="ltr"></div>
+        <div class="full"><label>النبذة</label><textarea id="iBio" rows="3"></textarea></div>
+      </div>
+      <div class="savebar"><button class="btn btn-gold" id="infoSaveBtn" onclick="saveInfo()" style="min-width:190px">💾 حفظ البيانات</button></div>
+    </div>
+
+    <!-- صوري -->
+    <div class="panel" id="pPhotos">
+      <h2>صور أعمالك</h2>
+      <div class="desc">حتى ٦ صور. الملفات اللي فيها صور حقيقية تستقبل تواصل أكثر بفارق كبير — خلها أفضل شغلك.</div>
+      <div class="imgs" id="photosGrid"></div>
+      <input id="pPhotosInput" type="file" accept="image/*" multiple>
+      <div class="upload-note">تنضغط الصور تلقائياً وترتفع لملفك مباشرة.</div>
+    </div>
+
+    <!-- شهاداتي -->
+    <div class="panel" id="pCerts">
+      <h2>الشهادات والوثائق</h2>
+      <div class="desc">ارفع <b>شهادة العمل الحر</b> أو <b>السجل التجاري</b> أو شهادات الدورات — تراجعها الإدارة لمنح ملفك شارة <b style="color:var(--green)">⭐ موثّق</b> اللي ترفع ترتيبك وثقة العملاء. (الوثائق للإدارة فقط ولا تظهر للعملاء)</div>
+      <div class="imgs" id="certsGrid"></div>
+      <input id="pCertsInput" type="file" accept="image/*" multiple>
+      <div class="upload-note">حتى ٤ وثائق (صور واضحة).</div>
+    </div>
+
+    <div class="share-box">
+      <span>🔗 <b>رابط ملفك</b> — انشره بحساباتك وقروباتك، كل زيارة تنحسب بمشاهداتك</span>
+      <span style="display:flex;gap:8px">
+        <button class="btn btn-outline btn-sm" onclick="copyMyLink()">نسخ الرابط</button>
+        <a class="btn btn-green btn-sm" id="waShare" target="_blank" rel="noopener">مشاركة واتساب</a>
+      </span>
+    </div>
+  </div>
+</main>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ============================================================
+   بوابة المزودين — دبّره
+============================================================ */
+const API_URL="https://script.google.com/macros/s/AKfycbygyrx1oYJA6Ll1R5CL0xm9eAFbPRspd04x81tnJH4Sze8s7V3UhHEfmm4JhOPAtCGN/exec";
+const SITE_URL="https://abdullah5544.github.io/dabbirha/";
+
+const allRegions=["الرياض","مكة المكرمة — جدة","الشرقية — الدمام","المدينة المنورة","القصيم","الحدود الشمالية — عرعر","تبوك","حائل","عسير — أبها","جازان","نجران","الجوف"];
+const allOccasions=["زواج","ملكة / خطوبة","تخرج","عزيمة / استقبال","مناسبة عمل"];
+const AR_MONTHS=["يناير","فبراير","مارس","أبريل","مايو","يونيو","يوليو","أغسطس","سبتمبر","أكتوبر","نوفمبر","ديسمبر"];
+const AR_DOW=["أحد","اثنين","ثلاثاء","أربعاء","خميس","جمعة","سبت"];
+
+let ME=null; // بيانات المزود الحالي
+let CREDS={phone:sessionStorage.getItem('dbrPhone')||'',code:sessionStorage.getItem('dbrCode')||''};
+
+/* ====== أدوات ====== */
+function esc(s){return String(s==null?'':s).replace(/[<>&"]/g,c=>({'<':'&lt;','>':'&gt;','&':'&amp;','"':'&quot;'}[c]));}
+function toast(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2400);}
+function isoOf(y,m,d){return y+'-'+String(m+1).padStart(2,'0')+'-'+String(d).padStart(2,'0');}
+function todayISO(){const t=new Date();return isoOf(t.getFullYear(),t.getMonth(),t.getDate());}
+function isISO(x){return /^\d{4}-\d{2}-\d{2}$/.test(x);}
+function normISO(t){
+  t=String(t).trim();
+  if(isISO(t))return t;
+  if(/^\d{4}-\d{2}-\d{2}T/.test(t)){try{return new Date(t).toLocaleDateString('en-CA',{timeZone:'Asia/Riyadh'});}catch(e){return '';}}
+  return '';
+}
+async function api(action,extra){
+  const res=await fetch(API_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},
+    body:JSON.stringify(Object.assign({action:action,phone:CREDS.phone,code:CREDS.code},extra||{}))});
+  return res.json();
+}
+function compressImage(file,maxSize,quality){
+  return new Promise(res=>{
+    const img=new Image();
+    img.onload=()=>{
+      const scale=Math.min(1,maxSize/Math.max(img.width,img.height));
+      const cv=document.createElement('canvas');
+      cv.width=Math.round(img.width*scale);cv.height=Math.round(img.height*scale);
+      cv.getContext('2d').drawImage(img,0,0,cv.width,cv.height);
+      res(cv.toDataURL('image/jpeg',quality));
+    };
+    img.src=URL.createObjectURL(file);
+  });
+}
+
+/* ====== التقويم ====== */
+function makeCalendar(containerId){
+  const el=document.getElementById(containerId);
+  const state=new Map();
+  const now=new Date();
+  let vy=now.getFullYear(),vm=now.getMonth();
+  const minISO=todayISO();
+  function render(){
+    const first=new Date(vy,vm,1);
+    const daysIn=new Date(vy,vm+1,0).getDate();
+    let html='<div class="cal-head"><button type="button" data-nav="-1">›</button><span>'+AR_MONTHS[vm]+' '+vy+'</span><button type="button" data-nav="1">‹</button></div><div class="cal-grid">'+AR_DOW.map(d=>'<span class="dow">'+d.slice(0,1)+'</span>').join('');
+    for(let i=0;i<first.getDay();i++)html+='<span></span>';
+    for(let d=1;d<=daysIn;d++){
+      const iso=isoOf(vy,vm,d);
+      html+='<button type="button" class="cal-day '+(state.get(iso)||'')+'" data-d="'+iso+'"'+(iso<minISO?' disabled':'')+'>'+d+'</button>';
+    }
+    el.innerHTML=html+'</div>';
+  }
+  el.addEventListener('click',e=>{
+    const nav=e.target.getAttribute('data-nav');
+    if(nav){vm+=Number(nav);if(vm<0){vm=11;vy--;}if(vm>11){vm=0;vy++;}render();return;}
+    const d=e.target.getAttribute('data-d');
+    if(!d||e.target.disabled)return;
+    const cur=state.get(d);
+    if(!cur)state.set(d,'a');else if(cur==='a')state.set(d,'b');else state.delete(d);
+    e.target.className='cal-day '+(state.get(d)||'');
+  });
+  render();
+  return {
+    serialize(){return [...state.entries()].sort((a,b)=>a[0]<b[0]?-1:1).map(([d,st])=>st==='b'?'!'+d:d).join('، ');},
+    load(str){state.clear();String(str||'').split('،').map(x=>x.trim()).forEach(t=>{
+      const isB=t.startsWith('!');if(isB)t=t.slice(1);
+      const iso=normISO(t);if(iso)state.set(iso,isB?'b':'a');
+    });render();},
+    availCount(){let n=0;const today=todayISO();state.forEach((v,k)=>{if(v==='a'&&k>=today)n++;});return n;}
+  };
+}
+let provCal=null;
+
+/* ====== الدخول ====== */
+async function login(){
+  const phone=document.getElementById('lPhone').value.trim();
+  const code=document.getElementById('lCode').value.trim();
+  const err=document.getElementById('loginErr');
+  if(!/^05\d{8}$/.test(phone)){err.textContent='رقم الجوال لازم يكون بصيغة 05xxxxxxxx';return;}
+  if(!/^\d{6}$/.test(code)){err.textContent='رمز الدخول ٦ أرقام';return;}
+  const btn=document.getElementById('loginBtn');
+  btn.disabled=true;btn.textContent='⏳ جاري التحقق...';
+  err.textContent='';
+  CREDS={phone,code};
+  try{
+    const out=await api('provider:login');
+    if(!out.ok)throw new Error(out.error||'فشل الدخول');
+    sessionStorage.setItem('dbrPhone',phone);
+    sessionStorage.setItem('dbrCode',code);
+    ME=out.provider;
+    showDash();
+  }catch(e){
+    err.textContent=e.message;
+    CREDS={phone:'',code:''};
+  }
+  btn.disabled=false;btn.textContent='دخول';
+}
+function logout(){
+  sessionStorage.removeItem('dbrPhone');sessionStorage.removeItem('dbrCode');
+  location.reload();
+}
+
+/* ====== اللوحة ====== */
+function buildChecks(elId,items,selectedStr){
+  const el=document.getElementById(elId);el.innerHTML='';
+  const selected=String(selectedStr||'').split('،').map(x=>x.trim());
+  items.forEach(v=>{
+    const l=document.createElement('label');
+    l.innerHTML=`<input type="checkbox" value="${v}" ${selected.includes(v)?'checked':''}> ${v}`;
+    el.appendChild(l);
+  });
+}
+function checkedValues(elId){return [...document.querySelectorAll('#'+elId+' input:checked')].map(i=>i.value);}
+
+function showDash(){
+  document.getElementById('loginView').style.display='none';
+  document.getElementById('dashView').style.display='block';
+  document.getElementById('headerActions').style.display='flex';
+
+  document.getElementById('wName').textContent=ME.name;
+  const stCls=ME.status==='معتمد'?'st-a':ME.status==='موقوف'?'st-s':'st-p';
+  document.getElementById('wBadges').innerHTML=
+    `<span class="status ${stCls}">${esc(ME.status)}</span>`+
+    (ME.verified?'<span class="vbadge">⭐ موثّق</span>':'');
+
+  document.getElementById('sViews').textContent=(ME.views||0).toLocaleString('ar-SA');
+  document.getElementById('sRating').textContent=ME.rating>0?Number(ME.rating).toFixed(1):'جديد';
+  document.getElementById('sReviews').textContent=(ME.reviews||0).toLocaleString('ar-SA');
+
+  // التقويم
+  provCal=makeCalendar('provCal');
+  provCal.load(ME.dates||'');
+  document.getElementById('sAvail').textContent=provCal.availCount().toLocaleString('ar-SA');
+
+  // البيانات
+  document.getElementById('iName').value=ME.name||'';
+  document.getElementById('iService').value=ME.service||'تصوير';
+  document.getElementById('iCity').value=ME.city||'';
+  document.getElementById('iPrice').value=ME.price||'';
+  document.getElementById('iLink').value=ME.link||'';
+  document.getElementById('iBio').value=ME.bio||'';
+  buildChecks('iRegions',allRegions,ME.regions);
+  buildChecks('iOccasions',allOccasions,ME.occasions);
+
+  renderImages('photosGrid',ME.photos,'photo');
+  renderImages('certsGrid',ME.certs,'cert');
+
+  // مشاركة
+  const myLink=SITE_URL+'#p='+ME.id;
+  document.getElementById('waShare').href='https://wa.me/?text='+encodeURIComponent('شوف ملفي في منصة دبّره لخدمات المناسبات 🌟 ')+encodeURIComponent(myLink);
+}
+function switchPanel(btn){
+  document.querySelectorAll('.pill').forEach(p=>p.classList.remove('on'));
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('on'));
+  btn.classList.add('on');
+  document.getElementById(btn.getAttribute('data-panel')).classList.add('on');
+}
+function copyMyLink(){
+  const url=SITE_URL+'#p='+ME.id;
+  (navigator.clipboard?navigator.clipboard.writeText(url):Promise.reject())
+    .then(()=>toast('✅ تم نسخ رابط ملفك'))
+    .catch(()=>prompt('انسخ الرابط:',url));
+}
+
+/* ====== الحفظ ====== */
+async function saveCalendar(){
+  const btn=document.getElementById('calSaveBtn');
+  btn.disabled=true;btn.textContent='⏳ جاري الحفظ...';
+  try{
+    const out=await api('provider:update',{fields:{dates:provCal.serialize()}});
+    if(!out.ok)throw new Error(out.error||'فشل الحفظ');
+    ME=out.provider;
+    document.getElementById('sAvail').textContent=provCal.availCount().toLocaleString('ar-SA');
+    toast('✅ تم حفظ تقويمك — صار ظاهر للعملاء');
+  }catch(e){toast('❌ '+e.message);}
+  btn.disabled=false;btn.textContent='💾 حفظ التقويم';
+}
+async function saveInfo(){
+  const fields={
+    name:document.getElementById('iName').value.trim(),
+    service:document.getElementById('iService').value,
+    city:document.getElementById('iCity').value.trim(),
+    price:document.getElementById('iPrice').value.trim(),
+    regions:checkedValues('iRegions').join('، '),
+    occasions:checkedValues('iOccasions').join('، '),
+    link:document.getElementById('iLink').value.trim(),
+    bio:document.getElementById('iBio').value.trim()
+  };
+  if(!fields.name||!fields.city||!fields.price||!fields.bio){toast('❌ الاسم والمدينة والسعر والنبذة إلزامية');return;}
+  if(!fields.regions){toast('❌ اختر منطقة وحدة على الأقل');return;}
+  const btn=document.getElementById('infoSaveBtn');
+  btn.disabled=true;btn.textContent='⏳ جاري الحفظ...';
+  try{
+    const out=await api('provider:update',{fields:fields});
+    if(!out.ok)throw new Error(out.error||'فشل الحفظ');
+    ME=out.provider;
+    document.getElementById('wName').textContent=ME.name;
+    toast('✅ تم حفظ بياناتك');
+  }catch(e){toast('❌ '+e.message);}
+  btn.disabled=false;btn.textContent='💾 حفظ البيانات';
+}
+
+/* ====== الصور والشهادات ====== */
+function renderImages(gridId,str,kind){
+  const grid=document.getElementById(gridId);
+  const urls=String(str||'').split('|').map(x=>x.trim()).filter(Boolean);
+  grid.innerHTML=urls.map(u=>`
+    <div class="im"><img src="${esc(u)}" alt="" loading="lazy">
+    <button type="button" onclick="removeImage('${kind}','${esc(u)}')" aria-label="حذف">✕</button></div>`).join('')
+    ||'<div style="grid-column:1/-1;font-size:.8rem;color:var(--ink-dim)">ما فيه صور بعد — أضف من الزر تحت 👇</div>';
+}
+async function removeImage(kind,url){
+  if(!confirm('حذف هذه الصورة؟'))return;
+  const action=kind==='photo'?'provider:removePhoto':'provider:removeCert';
+  const out=await api(action,{url:url});
+  if(out.ok){
+    const key=kind==='photo'?'photos':'certs';
+    ME[key]=(out.urls||[]).join(' | ');
+    renderImages(kind==='photo'?'photosGrid':'certsGrid',ME[key],kind);
+    toast('تم الحذف');
+  }else toast('❌ '+(out.error||'فشل الحذف'));
+}
+function wireUpload(inputId,action,gridId,kind,maxAtOnce){
+  document.getElementById(inputId).addEventListener('change',async e=>{
+    const files=[...e.target.files].slice(0,maxAtOnce);
+    if(!files.length)return;
+    toast('⏳ جاري رفع '+files.length+' صورة...');
+    const photos=[];
+    for(const f of files)photos.push(await compressImage(f,900,0.72));
+    const out=await api(action,{photos:photos});
+    e.target.value='';
+    if(out.ok){
+      const key=kind==='photo'?'photos':'certs';
+      ME[key]=(out.urls||[]).join(' | ');
+      renderImages(gridId,ME[key],kind);
+      toast('✅ تم الرفع بنجاح');
+    }else toast('❌ '+(out.error||'فشل الرفع'));
+  });
+}
+wireUpload('pPhotosInput','provider:addPhotos','photosGrid','photo',6);
+wireUpload('pCertsInput','provider:addCerts','certsGrid','cert',4);
+
+/* دخول تلقائي إذا فيه جلسة محفوظة */
+(async()=>{
+  if(CREDS.phone&&CREDS.code){
+    try{
+      const out=await api('provider:login');
+      if(out.ok){ME=out.provider;showDash();return;}
+    }catch(e){}
+    sessionStorage.removeItem('dbrPhone');sessionStorage.removeItem('dbrCode');
+  }
+})();
+</script>
+</body>
+</html>
