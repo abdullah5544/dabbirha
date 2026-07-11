@@ -121,6 +121,8 @@ main{max-width:1100px;margin:0 auto;padding:24px 20px 60px}
       <div class="stat"><div class="num" id="stStopped">0</div><div class="lbl">موقوف</div></div>
     </div>
 
+    <div id="svcDist" style="margin:-6px 0 16px;display:flex;flex-wrap:wrap;gap:8px"></div>
+
     <div class="toolbar">
       <select id="fStatus" onchange="renderList()">
         <option value="">كل الحالات</option>
@@ -130,6 +132,7 @@ main{max-width:1100px;margin:0 auto;padding:24px 20px 60px}
       </select>
       <input id="fSearch" placeholder="🔍 بحث بالاسم أو المدينة" oninput="renderList()" style="min-width:200px">
       <div class="spacer"></div>
+      <button class="btn btn-outline btn-sm" onclick="exportCSV()">📊 تصدير CSV</button>
       <button class="btn btn-gold btn-sm" onclick="openAdd()">➕ إضافة مزود</button>
     </div>
 
@@ -160,6 +163,7 @@ main{max-width:1100px;margin:0 auto;padding:24px 20px 60px}
         <div class="full"><label>التواريخ المتاحة (افصل بـ ،)</label><input id="eDates"></div>
         <div class="full"><label>النبذة</label><textarea id="eBio" rows="3"></textarea></div>
         <div class="full"><label>روابط الصور (افصل بـ | ) — اختياري</label><input id="ePhotos" dir="ltr" placeholder="https://... | https://..."></div>
+        <div class="full" id="notesWrap" style="display:none"><label>📝 ملاحظات إدارية (ما تظهر للعملاء)</label><textarea id="eNotes" rows="2" placeholder="مثال: دفع الرسوم بتاريخ كذا / بانتظار السجل التجاري..."></textarea></div>
         <div><label>التقييم (٠-٥)</label><input id="eRating" type="number" step="0.1" min="0" max="5"></div>
         <div><label>عدد التقييمات</label><input id="eReviews" type="number" min="0"></div>
       </div>
@@ -224,6 +228,7 @@ async function loadAll(){
     if(!out.ok)throw new Error(out.error);
     providers=out.providers;
     updateStats();
+    drawSvcDist();
     renderList();
   }catch(err){
     document.getElementById('plist').innerHTML='<div class="empty">خطأ: '+esc(err.message)+'<br><button class="btn btn-outline btn-sm" style="margin-top:10px" onclick="loadAll()">إعادة المحاولة</button></div>';
@@ -239,13 +244,25 @@ function updateStats(){
 
 function esc(s){return String(s==null?'':s).replace(/[<>&"]/g,c=>({'<':'&lt;','>':'&gt;','&':'&amp;','"':'&quot;'}[c]));}
 
+function v3(){return providers.length&&('verified' in providers[0]);}
+function drawSvcDist(){
+  const el=document.getElementById('svcDist');
+  if(!providers.length){el.innerHTML='';return;}
+  const counts={};providers.forEach(p=>counts[p.service]=(counts[p.service]||0)+1);
+  el.innerHTML=Object.entries(counts).sort((a,b)=>b[1]-a[1]).map(([s,c])=>
+    `<span style="font-size:.72rem;background:var(--bg2);border:1px solid var(--line);border-radius:999px;padding:3px 12px;color:var(--ink-dim)">${esc(s)}: <b style="color:var(--gold)">${c}</b></span>`).join('');
+}
 function renderList(){
   const st=document.getElementById('fStatus').value;
   const q=document.getElementById('fSearch').value.trim();
+  const byId=p=>Number(String(p.id).replace(/\D/g,''))||0;
   const list=providers.filter(p=>
     (!st||p.status===st)&&
     (!q||String(p.name).includes(q)||String(p.city).includes(q))
-  );
+  ).sort((a,b)=>{
+    const pri=x=>x.status==='قيد المراجعة'?0:1;
+    return pri(a)-pri(b)||byId(b)-byId(a);
+  });
   const el=document.getElementById('plist');
   if(!list.length){el.innerHTML='<div class="empty">لا يوجد مزودين بهذا الفلتر</div>';return;}
   el.innerHTML=list.map(p=>{
@@ -256,8 +273,9 @@ function renderList(){
     <div class="prow">
       <div class="prow-top">
         <div>
-          <h3>${esc(p.name)} <span class="meta">— ${esc(p.service)} · ${esc(p.city)}</span></h3>
-          <div class="meta">${esc(p.regions)} · يبدأ من ${Number(p.price).toLocaleString('ar-SA')} ريال · ★ ${p.rating||0} (${p.reviews||0})</div>
+          <h3>${esc(p.name)} ${p.verified?'<span style="font-size:.62rem;background:rgba(47,102,71,.1);color:var(--green);border:1px solid var(--green);border-radius:999px;padding:1px 8px;vertical-align:middle">⭐ موثّق</span>':''} <span class="meta">— ${esc(p.service)} · ${esc(p.city)}</span></h3>
+          <div class="meta">${esc(p.regions)} · يبدأ من ${Number(p.price).toLocaleString('ar-SA')} ريال · ★ ${p.rating||0} (${p.reviews||0})${p.views?` · 👁 ${p.views} مشاهدة`:''}</div>
+          ${p.notes?`<div class="meta" style="color:var(--gold)">📝 ${esc(p.notes)}</div>`:''}
         </div>
         <span class="status ${stClass}">${esc(p.status)}</span>
       </div>
@@ -266,6 +284,9 @@ function renderList(){
       ${photos.length?`<div class="thumbs">${photos.map(u=>`<img src="${esc(u)}" alt="" loading="lazy">`).join('')}</div>`:''}
       <div class="prow-actions">
         ${p.status!=='معتمد'?`<button class="btn btn-green btn-sm" onclick="setStatus('${p.id}','معتمد')">✔ اعتماد</button>`:''}
+        ${p.status==='قيد المراجعة'?`<a class="btn btn-sm" style="background:#25D366;color:#fff;text-decoration:none" href="https://wa.me/966${String(p.phone).replace(/^0/,'')}?text=${encodeURIComponent('السلام عليكم '+p.name+'، وصلنا تسجيلكم في منصة دبّره 🎉 لإكمال تفعيل ملفكم فضلاً حوّلوا رسوم التسجيل (10 ريال فقط) وأرسلوا لنا إيصال التحويل، وبيظهر ملفكم للعملاء خلال 24 ساعة بإذن الله.')}" target="_blank" rel="noopener">💳 طلب الدفع</a>`:''}
+        ${v3()?`<button class="btn btn-outline btn-sm" onclick="toggleVerified('${p.id}',${p.verified?'false':'true'})">${p.verified?'⭐ إلغاء التوثيق':'⭐ توثيق'}</button>`:''}
+        <button class="btn btn-outline btn-sm" onclick="copyProviderLink('${p.id}')">🔗 نسخ رابط الملف</button>
         ${p.status!=='موقوف'?`<button class="btn btn-outline btn-sm" onclick="setStatus('${p.id}','موقوف')">⏸ إيقاف</button>`:''}
         ${p.status==='موقوف'?`<button class="btn btn-green btn-sm" onclick="setStatus('${p.id}','معتمد')">✔ إعادة تفعيل</button>`:''}
         <button class="btn btn-gold btn-sm" onclick="openEdit('${p.id}')">✏️ تعديل</button>
@@ -285,6 +306,36 @@ async function setStatus(id,status){
     updateStats();renderList();
     toast(status==='معتمد'?'✅ تم الاعتماد — صار ظاهر بالموقع':'تم التحديث');
   }else toast('❌ '+(out.error||'فشل'));
+}
+
+async function toggleVerified(id,val){
+  toast('⏳ جاري التحديث...');
+  const out=await api('admin:update',{id:id,fields:{verified:val?'نعم':''}});
+  if(out.ok){
+    const p=providers.find(x=>String(x.id)===String(id));
+    if(p)p.verified=val;
+    renderList();
+    toast(val?'⭐ تم التوثيق':'تم إلغاء التوثيق');
+  }else toast('❌ '+(out.error||'فشل — تأكد أن الباك اند محدّث للنسخة v3'));
+}
+
+function copyProviderLink(id){
+  const url='https://abdullah5544.github.io/dabbirha/#p='+id;
+  (navigator.clipboard?navigator.clipboard.writeText(url):Promise.reject())
+    .then(()=>toast('✅ تم نسخ رابط ملف المزود'))
+    .catch(()=>prompt('انسخ الرابط:',url));
+}
+
+function exportCSV(){
+  if(!providers.length){toast('لا توجد بيانات');return;}
+  const cols=['id','name','service','city','regions','occasions','price','phone','link','dates','rating','reviews','status','views','notes'];
+  const head=['المعرف','الاسم','الخدمة','المدينة','المناطق','المناسبات','السعر','الجوال','الرابط','التواريخ','التقييم','عدد_التقييمات','الحالة','المشاهدات','ملاحظات'];
+  const rows=providers.map(p=>cols.map(c=>'"'+String(p[c]==null?'':p[c]).replace(/"/g,'""')+'"').join(','));
+  const csv='\ufeff'+head.join(',')+'\n'+rows.join('\n');
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8'}));
+  a.download='dabbirha_providers.csv';a.click();
+  toast('📊 تم تصدير الملف');
 }
 
 async function delProvider(id,name){
@@ -315,6 +366,8 @@ function openEdit(id){
   document.getElementById('eRating').value=p.rating||0;
   document.getElementById('eReviews').value=p.reviews||0;
   document.getElementById('ePhotos').value=p.photos||'';
+  document.getElementById('notesWrap').style.display=v3()?'block':'none';
+  document.getElementById('eNotes').value=p.notes||'';
   document.getElementById('modalTitle').textContent='تعديل بيانات المزود';
   document.getElementById('saveBtn').textContent='حفظ التعديلات';
   addMode=false;
@@ -329,6 +382,7 @@ function openAdd(){
   document.getElementById('eService').value='تصوير';
   document.getElementById('eRating').value=0;
   document.getElementById('eReviews').value=0;
+  document.getElementById('notesWrap').style.display='none';
   document.getElementById('modalTitle').textContent='إضافة مزود جديد (يُعتمد مباشرة)';
   document.getElementById('saveBtn').textContent='إضافة واعتماد';
   document.getElementById('editModal').classList.add('open');
@@ -351,6 +405,7 @@ async function saveEdit(){
     reviews:document.getElementById('eReviews').value,
     photos:document.getElementById('ePhotos').value.trim()
   };
+  if(v3())fields.notes=document.getElementById('eNotes').value.trim();
   const btn=document.getElementById('saveBtn');
 
   /* ---- وضع الإضافة: تسجيل ثم اعتماد فوري ---- */
