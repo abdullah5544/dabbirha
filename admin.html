@@ -349,7 +349,7 @@ function renderList(){
         ${p.status==='قيد المراجعة'?`<a class="btn btn-sm" style="background:#25D366;color:#fff;text-decoration:none" href="https://wa.me/966${String(p.phone).replace(/^0/,'')}?text=${encodeURIComponent('السلام عليكم '+p.name+'، وصلنا تسجيلكم في منصة دبّره 🎉 لإكمال تفعيل ملفكم فضلاً حوّلوا رسوم التسجيل (10 ريال فقط) وأرسلوا لنا إيصال التحويل، وبيظهر ملفكم للعملاء خلال 24 ساعة بإذن الله.')}" target="_blank" rel="noopener">💳 طلب الدفع</a>`:''}
         ${v3()?`<button class="btn btn-outline btn-sm" onclick="toggleVerified('${p.id}',${p.verified?'false':'true'})">${p.verified?'⭐ إلغاء التوثيق':'⭐ توثيق'}</button>`:''}
         <button class="btn btn-outline btn-sm" onclick="copyProviderLink('${p.id}')">🔗 نسخ رابط الملف</button>
-        ${'code' in p?(p.code?`<a class="btn btn-sm" style="background:#25D366;color:#fff;text-decoration:none" href="https://wa.me/966${String(p.phone).replace(/^0/,'')}?text=${encodeURIComponent('أهلاً '+p.name+' 🌟 هذي بيانات دخولك لبوابة مزودي دبّره:\n\n🔗 الرابط: https://abdullah5544.github.io/dabbirha/portal.html\n📱 رقم الجوال: '+p.phone+'\n🔑 رمز الدخول: '+p.code+'\n\nمن البوابة تتحكم بتقويمك وصورك وبياناتك بنفسك، وترفع شهادة العمل الحر للحصول على شارة موثّق ⭐')}" target="_blank" rel="noopener">🔑 إرسال بيانات الدخول</a>`:`<button class="btn btn-outline btn-sm" onclick="genCode('${p.id}')">🔑 توليد رمز دخول</button>`):''}
+        ${'code' in p?(p.code?`<a class="btn btn-sm" style="background:#25D366;color:#fff;text-decoration:none" href="https://wa.me/966${String(p.phone).replace(/^0/,'')}?text=${encodeURIComponent('أهلاً '+p.name+' 🌟 هذي بيانات دخولك لبوابة مزودي دبّره:\n\n🔗 الرابط: https://dabrah.com/portal.html\n📱 رقم الجوال: '+p.phone+'\n🔑 رمز الدخول: '+p.code+'\n\nمن البوابة تتحكم بتقويمك وصورك وبياناتك بنفسك، وترفع شهادة العمل الحر للحصول على شارة موثّق ⭐')}" target="_blank" rel="noopener">🔑 إرسال بيانات الدخول</a>`:`<button class="btn btn-outline btn-sm" onclick="genCode('${p.id}')">🔑 توليد رمز دخول</button>`):''}
         ${p.status!=='موقوف'?`<button class="btn btn-outline btn-sm" onclick="setStatus('${p.id}','موقوف')">⏸ إيقاف</button>`:''}
         ${p.status==='موقوف'?`<button class="btn btn-green btn-sm" onclick="setStatus('${p.id}','معتمد')">✔ إعادة تفعيل</button>`:''}
         <button class="btn btn-gold btn-sm" onclick="openEdit('${p.id}')">✏️ تعديل</button>
@@ -397,7 +397,7 @@ async function toggleVerified(id,val){
 }
 
 function copyProviderLink(id){
-  const url='https://abdullah5544.github.io/dabbirha/#p='+id;
+  const url='https://dabrah.com/#p='+id;
   (navigator.clipboard?navigator.clipboard.writeText(url):Promise.reject())
     .then(()=>toast('✅ تم نسخ رابط ملف المزود'))
     .catch(()=>prompt('انسخ الرابط:',url));
