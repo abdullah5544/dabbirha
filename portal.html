@@ -171,7 +171,8 @@ main{max-width:860px;margin:0 auto;padding:24px 16px 70px}
             <option>ضيافة وبوفيه</option><option>فرق شعبية</option>
           </select>
         </div>
-        <div><label>المدينة الرئيسية</label><input id="iCity"></div>
+        <div><label>المنطقة الإدارية</label><select id="iRegionSel" onchange="fillCities('iRegionSel','iCitySel')"></select></div>
+        <div><label>المدينة الرئيسية</label><select id="iCitySel"><option value="">اختر المنطقة أولاً</option></select></div>
         <div><label>السعر يبدأ من (ريال)</label><input id="iPrice" type="number"></div>
         <div class="full"><label>المناطق اللي تغطيها</label><div class="checks" id="iRegions"></div></div>
         <div class="full"><label>المناسبات اللي تخدمها</label><div class="checks" id="iOccasions"></div></div>
@@ -218,7 +219,38 @@ main{max-width:860px;margin:0 auto;padding:24px 16px 70px}
 const API_URL="https://script.google.com/macros/s/AKfycbygyrx1oYJA6Ll1R5CL0xm9eAFbPRspd04x81tnJH4Sze8s7V3UhHEfmm4JhOPAtCGN/exec";
 const SITE_URL="https://dabrah.com/";
 
-const allRegions=["الرياض","مكة المكرمة — جدة","الشرقية — الدمام","المدينة المنورة","القصيم","الحدود الشمالية — عرعر","تبوك","حائل","عسير — أبها","جازان","نجران","الجوف"];
+const SA_DATA={
+"الرياض":["الرياض","الخرج","الدرعية","الدوادمي","المجمعة","القويعية","وادي الدواسر","الأفلاج","الزلفي","شقراء","عفيف","حوطة بني تميم","المزاحمية","ضرماء","حريملاء","ثادق","الغاط","السليل","الحريق","رماح"],
+"مكة المكرمة":["مكة المكرمة","جدة","الطائف","القنفذة","الليث","رابغ","الجموم","خليص","الخرمة","رنية","تربة","الكامل","المويه","بحرة","أضم","ميسان"],
+"المدينة المنورة":["المدينة المنورة","ينبع","العلا","بدر","خيبر","مهد الذهب","الحناكية","العيص","وادي الفرع"],
+"القصيم":["بريدة","عنيزة","الرس","المذنب","البكيرية","البدائع","الأسياح","رياض الخبراء","عيون الجواء","النبهانية","الشماسية","ضرية"],
+"الشرقية":["الدمام","الخبر","الظهران","الأحساء","الجبيل","القطيف","حفر الباطن","رأس تنورة","بقيق","الخفجي","النعيرية","قرية العليا"],
+"عسير":["أبها","خميس مشيط","بيشة","محايل عسير","النماص","ظهران الجنوب","سراة عبيدة","تثليث","رجال ألمع","أحد رفيدة","المجاردة","بلقرن","تنومة","بارق"],
+"تبوك":["تبوك","الوجه","ضباء","تيماء","أملج","حقل","البدع"],
+"حائل":["حائل","بقعاء","الغزالة","الشنان","الحائط","السليمي","الشملي","موقق"],
+"الحدود الشمالية":["عرعر","رفحاء","طريف","العويقيلة"],
+"جازان":["جازان","صبيا","أبو عريش","صامطة","بيش","الدرب","أحد المسارحة","ضمد","جزر فرسان","العارضة","فيفاء","الدائر"],
+"نجران":["نجران","شرورة","حبونا","بدر الجنوب","يدمة","ثار","خباش"],
+"الباحة":["الباحة","بلجرشي","المندق","المخواة","قلوة","العقيق","القرى","الحجرة","بني حسن"],
+"الجوف":["سكاكا","القريات","دومة الجندل","طبرجل"]
+};
+const SA_REGIONS=Object.keys(SA_DATA);
+function cityRegion(city){
+  city=String(city||'').trim();
+  if(!city)return '';
+  for(const r of SA_REGIONS){if(SA_DATA[r].includes(city))return r;}
+  for(const r of SA_REGIONS){if(SA_DATA[r].some(c=>city.includes(c)||c.includes(city)))return r;}
+  return '';
+}
+function fillCities(regionSelId,citySelId,keepCity){
+  const region=document.getElementById(regionSelId).value;
+  const citySel=document.getElementById(citySelId);
+  const cities=SA_DATA[region]||[];
+  citySel.innerHTML='<option value="">'+(cities.length?'كل مدن المنطقة':'اختر المنطقة أولاً')+'</option>'+cities.map(c=>'<option>'+c+'</option>').join('');
+  if(keepCity&&cities.includes(keepCity))citySel.value=keepCity;
+}
+
+const allRegions=SA_REGIONS;
 const allOccasions=["زواج","ملكة / خطوبة","تخرج","عزيمة / استقبال","مناسبة عمل"];
 const AR_MONTHS=["يناير","فبراير","مارس","أبريل","مايو","يونيو","يوليو","أغسطس","سبتمبر","أكتوبر","نوفمبر","ديسمبر"];
 const AR_DOW=["أحد","اثنين","ثلاثاء","أربعاء","خميس","جمعة","سبت"];
@@ -360,7 +392,10 @@ function showDash(){
   // البيانات
   document.getElementById('iName').value=ME.name||'';
   document.getElementById('iService').value=ME.service||'تصوير';
-  document.getElementById('iCity').value=ME.city||'';
+  document.getElementById('iRegionSel').innerHTML='<option value="">اختر...</option>'+SA_REGIONS.map(r=>'<option>'+r+'</option>').join('');
+  const myRegion=cityRegion(ME.city);
+  if(myRegion){document.getElementById('iRegionSel').value=myRegion;fillCities('iRegionSel','iCitySel',ME.city);}
+  else fillCities('iRegionSel','iCitySel');
   document.getElementById('iPrice').value=ME.price||'';
   document.getElementById('iLink').value=ME.link||'';
   document.getElementById('iBio').value=ME.bio||'';
@@ -404,7 +439,7 @@ async function saveInfo(){
   const fields={
     name:document.getElementById('iName').value.trim(),
     service:document.getElementById('iService').value,
-    city:document.getElementById('iCity').value.trim(),
+    city:document.getElementById('iCitySel').value,
     price:document.getElementById('iPrice').value.trim(),
     regions:checkedValues('iRegions').join('، '),
     occasions:checkedValues('iOccasions').join('، '),
