@@ -132,6 +132,7 @@ main{max-width:1100px;margin:0 auto;padding:24px 20px 60px}
       <div class="stat"><div class="num" id="stStopped">0</div><div class="lbl">موقوف</div></div>
     </div>
 
+    <div id="siteStats" style="margin:-4px 0 14px"></div>
     <div id="svcDist" style="margin:-6px 0 16px;display:flex;flex-wrap:wrap;gap:8px"></div>
 
     <div class="toolbar">
@@ -244,6 +245,7 @@ async function loadAll(){
     providers=out.providers;
     updateStats();
     drawSvcDist();
+    loadSiteStats();
     renderList();
   }catch(err){
     document.getElementById('plist').innerHTML='<div class="empty">خطأ: '+esc(err.message)+'<br><button class="btn btn-outline btn-sm" style="margin-top:10px" onclick="loadAll()">إعادة المحاولة</button></div>';
@@ -352,6 +354,32 @@ function ensureCal(){if(!eCal)eCal=makeCalendar('eCal');return eCal;}
 function esc(s){return String(s==null?'':s).replace(/[<>&"]/g,c=>({'<':'&lt;','>':'&gt;','&':'&amp;','"':'&quot;'}[c]));}
 
 function v3(){return providers.length&&('verified' in providers[0]);}
+async function loadSiteStats(){
+  const el=document.getElementById('siteStats');
+  try{
+    const out=await api('admin:stats');
+    if(!out.ok)throw 0;
+    const t=out.stats.totals;
+    const days=out.stats.days||[];
+    const today=days.length?days[days.length-1]:{visits:0,reg:0,search:0};
+    const wk=days.slice(-7).reduce((acc,d)=>({visits:acc.visits+d.visits,reg:acc.reg+d.reg,search:acc.search+d.search}),{visits:0,reg:0,search:0});
+    const card=(icon,label,today,week,total)=>`
+      <div style="background:var(--bg2);border:1px solid var(--line);border-radius:12px;padding:12px 14px;flex:1;min-width:150px">
+        <div style="font-size:.72rem;color:var(--ink-dim)">${icon} ${label}</div>
+        <div style="font-size:1.5rem;font-weight:800;color:var(--gold);line-height:1.4">${today.toLocaleString('ar-SA')}<span style="font-size:.65rem;color:var(--ink-dim);font-weight:400"> اليوم</span></div>
+        <div style="font-size:.68rem;color:var(--ink-dim)">آخر ٧ أيام: <b>${week.toLocaleString('ar-SA')}</b> · الإجمالي: <b>${total.toLocaleString('ar-SA')}</b></div>
+      </div>`;
+    el.innerHTML='<div style="font-size:.8rem;font-weight:700;color:var(--gold);margin-bottom:8px">📈 إحصائيات الموقع</div>'
+      +'<div style="display:flex;gap:10px;flex-wrap:wrap">'
+      +card('👥','زوار الموقع',today.visits,wk.visits,t.visits)
+      +card('🙋','ضغطوا «انضم كمزود»',today.reg,wk.reg,t.reg)
+      +card('🔍','بحثوا عن مزود',today.search,wk.search,t.search)
+      +'</div>';
+  }catch(e){
+    el.innerHTML='<div style="font-size:.72rem;color:var(--ink-dim)">📈 إحصائيات الموقع بتظهر هنا بعد تحديث الباك اند لنسخة v4 الأخيرة</div>';
+  }
+}
+
 function drawSvcDist(){
   const el=document.getElementById('svcDist');
   if(!providers.length){el.innerHTML='';return;}
