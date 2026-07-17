@@ -688,6 +688,7 @@ function applyFilters(scroll){
   const k=document.getElementById('fKeyword').value.trim();
   const sort=document.getElementById('fSort').value;
 
+  if(o||s||r||d||k||document.getElementById('fCity').value)trackEvent('search');
   document.querySelectorAll('.chip').forEach(c=>c.classList.toggle('active',!!s&&c.textContent.includes(s)));
   document.getElementById('dateFilterPill').innerHTML=d?`<span class="active-filter">📅 متاح: ${esc(fmtDate(d))} <button onclick="document.getElementById('fDate').value='';applyFilters()" aria-label="إزالة فلتر التاريخ">✕</button></span>`:'';
 
@@ -807,6 +808,15 @@ function openLightbox(url){
 function trackView(id,isView){
   try{fetch(CONFIG.API_URL+'?action=track&id='+encodeURIComponent(id),{method:'GET'}).catch(()=>{});}catch(e){}
 }
+/* إحصائيات الموقع: تحسب مرة لكل جلسة زائر */
+function trackEvent(t){
+  try{
+    const key='dbrEv_'+t;
+    if(sessionStorage.getItem(key))return;
+    sessionStorage.setItem(key,'1');
+    fetch(CONFIG.API_URL+'?action=track&t='+t,{method:'GET'}).catch(()=>{});
+  }catch(e){}
+}
 function handleDeepLink(){
   const m=location.hash.match(/^#p=(.+)$/);
   if(m){const p=providers.find(x=>String(x.id)===decodeURIComponent(m[1]));if(p)openProvider(p.id);}
@@ -854,6 +864,7 @@ function attachPhotoListener(){
 
 let regOriginal=null;
 function openRegister(){
+  trackEvent('reg');
   if(regOriginal){
     document.getElementById('regBody').innerHTML=regOriginal;regOriginal=null;
     buildChecks('rRegions',allRegions);buildChecks('rOccasions',allOccasions);
@@ -1003,6 +1014,7 @@ document.getElementById('fRegion').innerHTML='<option value="">كل المناط
 document.getElementById('rRegionSel').innerHTML='<option value="">اختر...</option>'+SA_REGIONS.map(r=>'<option>'+r+'</option>').join('');
 document.getElementById('fDate').min=todayISO();
 attachPhotoListener();
+trackEvent('visit');
 loadProviders();
 </script>
 </body>
