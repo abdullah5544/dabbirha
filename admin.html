@@ -144,6 +144,7 @@ main{max-width:1100px;margin:0 auto;padding:24px 20px 60px}
       </select>
       <input id="fSearch" placeholder="🔍 بحث بالاسم أو المدينة" oninput="renderList()" style="min-width:200px">
       <div class="spacer"></div>
+      <button class="btn btn-outline btn-sm" onclick="openImport()">📥 استيراد جماعي</button>
       <button class="btn btn-outline btn-sm" onclick="exportCSV()">📊 تصدير CSV</button>
       <button class="btn btn-gold btn-sm" onclick="openAdd()">➕ إضافة مزود</button>
     </div>
@@ -151,6 +152,25 @@ main{max-width:1100px;margin:0 auto;padding:24px 20px 60px}
     <div class="plist" id="plist"></div>
   </div>
 </main>
+
+<!-- مودال الاستيراد الجماعي -->
+<div class="modal-overlay" id="importModal" onclick="if(event.target===this)closeImport()">
+  <div class="modal" role="dialog" aria-modal="true">
+    <div class="modal-head"><h3 style="font-size:1rem">📥 استيراد مزودين جماعي</h3>
+      <button class="close-btn" onclick="closeImport()">✕</button></div>
+    <div class="modal-body" id="importBody">
+      <p style="font-size:.8rem;color:var(--ink-dim);margin-bottom:10px">
+        انسخ الصفوف من ملف الإكسل (قالب دبّره) والصقها هنا — بدون صف العناوين.<br>
+        الأعمدة بالترتيب: <b>الاسم | الخدمة | المنطقة | المدينة | الجوال | السعر | النبذة | رابط | روابط صور</b>
+      </p>
+      <textarea id="importText" rows="8" style="width:100%;background:var(--bg2);border:1px solid var(--line);border-radius:10px;padding:10px;font-family:inherit;font-size:.8rem" placeholder="الصق الصفوف المنسوخة من الإكسل هنا..."></textarea>
+      <div style="text-align:center;margin-top:12px">
+        <button class="btn btn-gold" onclick="parseImport()">معاينة قبل الاستيراد</button>
+      </div>
+      <div id="importPreview" style="margin-top:14px"></div>
+    </div>
+  </div>
+</div>
 
 <!-- مودال التعديل -->
 <div class="modal-overlay" id="editModal" onclick="if(event.target===this)closeEdit()">
@@ -378,6 +398,64 @@ async function loadSiteStats(){
   }catch(e){
     el.innerHTML='<div style="font-size:.72rem;color:var(--ink-dim)">📈 إحصائيات الموقع بتظهر هنا بعد تحديث الباك اند لنسخة v4 الأخيرة</div>';
   }
+}
+
+/* ====== الاستيراد الجماعي ====== */
+let importRows=[];
+function openImport(){document.getElementById('importModal').classList.add('open');}
+function closeImport(){document.getElementById('importModal').classList.remove('open');document.getElementById('importPreview').innerHTML='';document.getElementById('importText').value='';importRows=[];}
+
+function parseImport(){
+  const raw=document.getElementById('importText').value.trim();
+  const prev=document.getElementById('importPreview');
+  if(!raw){prev.innerHTML='<div style="color:var(--sadu-red);font-size:.8rem">الصق البيانات أولاً</div>';return;}
+  const lines=raw.split(/\r?\n/).filter(l=>l.trim());
+  importRows=[];const issues=[];
+  lines.forEach((line,idx)=>{
+    const c=line.split('\t').map(x=>x.trim());
+    if(c.length<2&&line.includes(','))c.push(...line.split(',').map(x=>x.trim()).slice(c.length));
+    const row={name:c[0]||'',service:c[1]||'',region:c[2]||'',city:c[3]||'',phone:String(c[4]||'').replace(/[^0-9]/g,''),price:c[5]||'',bio:c[6]||'',link:c[7]||'',photoLinks:c[8]||''};
+    const errs=[];
+    if(!row.name)errs.push('الاسم فاضي');
+    if(!allServices.includes(row.service))errs.push('خدمة غير معروفة: "'+row.service+'"');
+    if(!SA_REGIONS.includes(row.region))errs.push('منطقة غير معروفة: "'+row.region+'"');
+    else if(row.city&&!SA_DATA[row.region].includes(row.city))errs.push('المدينة مو ضمن المنطقة');
+    if(!/^05\d{8}$/.test(row.phone))errs.push('جوال غير صحيح');
+    if(!Number(row.price))errs.push('السعر غير صحيح');
+    row.regions=row.region; // التغطية الافتراضية = منطقته
+    if(errs.length)issues.push('صف '+(idx+1)+' ('+(row.name||'؟')+'): '+errs.join('، '));
+    else importRows.push(row);
+  });
+  let html='<div style="font-size:.82rem">✅ صالح للاستيراد: <b style="color:var(--green)">'+importRows.length+'</b> · ❌ فيه أخطاء: <b style="color:var(--sadu-red)">'+issues.length+'</b></div>';
+  if(issues.length)html+='<div style="font-size:.72rem;color:var(--sadu-red);margin-top:8px;max-height:120px;overflow:auto">'+issues.map(esc).join('<br>')+'</div>';
+  if(importRows.length)html+='<div style="text-align:center;margin-top:12px"><button class="btn btn-green" id="importGoBtn" onclick="runImport()">🚀 استيراد '+importRows.length+' مزود الآن</button></div><div id="importProgress" style="font-size:.78rem;margin-top:10px"></div>';
+  prev.innerHTML=html;
+}
+
+async function runImport(){
+  const btn=document.getElementById('importGoBtn');
+  const prog=document.getElementById('importProgress');
+  btn.disabled=true;btn.textContent='⏳ جاري الاستيراد...';
+  const all=[...importRows];const done=[];
+  // دفعات من ٥ (تحميل الصور ياخذ وقت بالخادم)
+  for(let i=0;i<all.length;i+=5){
+    const batch=all.slice(i,i+5);
+    prog.innerHTML='📦 دفعة '+(Math.floor(i/5)+1)+' من '+Math.ceil(all.length/5)+' ...';
+    try{
+      const out=await api('admin:import',{rows:batch});
+      if(out.ok)done.push(...out.results);
+      else batch.forEach(b=>done.push({name:b.name,ok:false,error:out.error||'فشل'}));
+    }catch(e){batch.forEach(b=>done.push({name:b.name,ok:false,error:'خطأ اتصال'}));}
+  }
+  const okCount=done.filter(d=>d.ok).length;
+  prog.innerHTML='<div style="color:var(--green);font-weight:700">✅ اكتمل: '+okCount+' من '+done.length+' مزود</div>'
+    +'<div style="max-height:160px;overflow:auto;margin-top:8px">'
+    +done.map(d=>d.ok
+      ?'<div style="color:var(--green)">✓ '+esc(d.name)+' — رمز دخوله: <b dir="ltr">'+esc(d.code)+'</b>'+(d.photos?' · '+d.photos+' صور':'')+'</div>'
+      :'<div style="color:var(--sadu-red)">✗ '+esc(d.name)+': '+esc(d.error)+'</div>').join('')
+    +'</div>';
+  btn.style.display='none';
+  loadAll();
 }
 
 function drawSvcDist(){
