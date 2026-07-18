@@ -310,6 +310,7 @@ function fillCities(regionSelId,citySelId,keepCity){
   if(keepCity&&cities.includes(keepCity))citySel.value=keepCity;
 }
 
+const allServices=['تصوير','صبابين وصبابات','دي جي وتنسيق صوتي','قاعات أفراح','استراحات','كوش وتنسيق','ضيافة وبوفيه','فرق شعبية'];
 const AR_MONTHS=["يناير","فبراير","مارس","أبريل","مايو","يونيو","يوليو","أغسطس","سبتمبر","أكتوبر","نوفمبر","ديسمبر"];
 const AR_DOW=["أحد","اثنين","ثلاثاء","أربعاء","خميس","جمعة","سبت"];
 function isoOf(y,m,d){return y+'-'+String(m+1).padStart(2,'0')+'-'+String(d).padStart(2,'0');}
