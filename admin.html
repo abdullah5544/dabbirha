@@ -160,7 +160,7 @@ main{max-width:1100px;margin:0 auto;padding:24px 20px 60px}
       <button class="close-btn" onclick="closeImport()">✕</button></div>
     <div class="modal-body" id="importBody">
       <p style="font-size:.8rem;color:var(--ink-dim);margin-bottom:10px">
-        انسخ الصفوف من ملف الإكسل (قالب دبّره) والصقها هنا — بدون صف العناوين.<br>
+        انسخ الصفوف من الإكسل، أو الصق أسطر مفصولة بعلامة | — بدون صف العناوين.<br>
         الأعمدة بالترتيب: <b>الاسم | الخدمة | المنطقة | المدينة | الجوال | السعر | النبذة | رابط | روابط صور</b>
       </p>
       <textarea id="importText" rows="8" style="width:100%;background:var(--bg2);border:1px solid var(--line);border-radius:10px;padding:10px;font-family:inherit;font-size:.8rem" placeholder="الصق الصفوف المنسوخة من الإكسل هنا..."></textarea>
@@ -413,8 +413,8 @@ function parseImport(){
   const lines=raw.split(/\r?\n/).filter(l=>l.trim());
   importRows=[];const issues=[];
   lines.forEach((line,idx)=>{
-    const c=line.split('\t').map(x=>x.trim());
-    if(c.length<2&&line.includes(','))c.push(...line.split(',').map(x=>x.trim()).slice(c.length));
+    let c=line.split('\t').map(x=>x.trim());
+    if(c.length<3)c=line.split('|').map(x=>x.trim());
     const row={name:c[0]||'',service:c[1]||'',region:c[2]||'',city:c[3]||'',phone:String(c[4]||'').replace(/[^0-9]/g,''),price:c[5]||'',bio:c[6]||'',link:c[7]||'',photoLinks:c[8]||''};
     const errs=[];
     if(!row.name)errs.push('الاسم فاضي');
@@ -695,6 +695,6 @@ if(key()){
   api('admin:login').then(out=>{if(out.ok)showDash();else sessionStorage.removeItem('dbr_admin_key');}).catch(()=>{});
 }
 </script>
-<div style="position:fixed;bottom:6px;left:10px;font-size:.6rem;color:#B8A88F;z-index:5">الإصدار 3.1</div>
+<div style="position:fixed;bottom:6px;left:10px;font-size:.6rem;color:#B8A88F;z-index:5">الإصدار 3.2</div>
 </body>
 </html>
